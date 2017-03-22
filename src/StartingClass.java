@@ -11,13 +11,14 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
     private URL base;
     private Graphics second;
 
-    private Image image, background, heroJumpRight, heroJumpLeft, heroDucked;
-    private Image heliboy, heliboy2, heliboy3, heliboy4, heliboy5;
+    private Image img, image;
+
+    private Image enemyStand;
+    private Image heroJump, heroJumpRight, heroJumpLeft, heroDucked;
     private Image heroStandRight1, heroStandRight2, heroStandLeft1, heroStandLeft2;
     private Image heroRunningRight1, heroRunningRight2, heroRunningRight3;
     private Image heroRunningLeft1, heroRunningLeft2, heroRunningLeft3;
 
-    private static Background bg, bg2;
 
     private Animation runningRightAnim, runningLeftAnim, standAnimRight, standAnimLeft, currentAnim;
     private Animation heliAnim;
@@ -27,26 +28,24 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
     public void init() {
 
         //INIT SETUP
-
-        setSize(1360,768);
-        setBackground(Color.black);
+        MediaTracker tr = new MediaTracker(this);
+        img = getImage(getCodeBase(), "/ToBeSurvivor/background.gif");
+        tr.addImage(img, 0);
+        setSize(1200, 768);
         setFocusable(true);
         addKeyListener(this);
-        Frame frame = (Frame) this.getParent().getParent();
-        frame.setTitle("Middle Ages");
+
         try {
             base = getDocumentBase();
-        } catch (Exception e){
+        } catch (Exception e) {
             // TODO: handle exception
         }
 
         //IMAGE SETUPS
-        background = getImage(base, "/ToBeSurvivor/background.png");
-
         heroStandRight1 = getImage(base, "/ToBeSurvivor/heroStandRight1.png");
         heroStandRight2 = getImage(base, "/ToBeSurvivor/heroStandRight2.png");
 
-        heroStandLeft1 = getImage(base,"/ToBeSurvivor/heroStandLeft1.png");
+        heroStandLeft1 = getImage(base, "/ToBeSurvivor/heroStandLeft1.png");
         heroStandLeft2 = getImage(base, "/ToBeSurvivor/heroStandLeft2.png");
 
         heroRunningRight1 = getImage(base, "/ToBeSurvivor/heroRunningRight1.png");
@@ -57,16 +56,13 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
         heroRunningLeft2 = getImage(base, "/ToBeSurvivor/heroRunningLeft2.png");
         heroRunningLeft3 = getImage(base, "/ToBeSurvivor/heroRunningLeft3.png");
 
+        heroJump = getImage(base, "/ToBeSurvivor/heroJump.png");
         heroJumpRight = getImage(base, "/ToBeSurvivor/heroJumpRight.png");
         heroJumpLeft = getImage(base, "/ToBeSurvivor/heroJumpLeft.png");
-        
+
         heroDucked = getImage(base, "/ToBeSurvivor/heroDucked.png");
 
-        heliboy = getImage(base ,"/ToBeSurvivor/heliboy.png");
-        heliboy2 = getImage(base, "/ToBeSurvivor/heliboy2.png");
-        heliboy3 = getImage(base, "/ToBeSurvivor/heliboy3.png");
-        heliboy4 = getImage(base, "/ToBeSurvivor/heliboy4.png");
-        heliboy5 = getImage(base, "/ToBeSurvivor/heliboy5.png");
+        enemyStand = getImage(base,"/ToBeSurvivor/enemyStand.png");
 
 
         //HERO ANIMATIONS
@@ -77,7 +73,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
         }
         {
             standAnimLeft = new Animation();
-            standAnimLeft.addFrame(heroStandLeft1,200);
+            standAnimLeft.addFrame(heroStandLeft1, 200);
             standAnimLeft.addFrame(heroStandLeft2, 8000);
         }
         {
@@ -100,26 +96,12 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
         }
 
         //ENEMY ANIMATIONS
-        heliAnim = new Animation();
-        heliAnim.addFrame(heliboy, 100);
-        heliAnim.addFrame(heliboy2, 100);
-        heliAnim.addFrame(heliboy3, 100);
-        heliAnim.addFrame(heliboy4, 100);
-        heliAnim.addFrame(heliboy5, 100);
-        heliAnim.addFrame(heliboy4, 100);
-        heliAnim.addFrame(heliboy3, 100);
-        heliAnim.addFrame(heliboy2, 100);
 
     }
 
-
     @Override
     public void start() {
-        bg = new Background(0,0);
-        bg2 = new Background(1360,0);
-
         elza = new Hero();
-
         enemy1 = new Enemy(1000, 450);
 
         Thread thread = new Thread(this);
@@ -128,126 +110,101 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
     @Override
     public void run() {
-
-        while (true){
-
-
+        while (true) {
             elza.update();
-            enemy1.update();
-
-            bg.update();
-            bg2.update();
             currentAnim();
 
-            animate();
             repaint();
 
-            try{
+            try {
                 Thread.sleep(17);
-            } catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private void animate() {
-        heliAnim.update(50);
-    }
 
-    private void currentAnim(){
+
+    private void currentAnim() {
         currentAnim.update(50);
-    }
-
-
-
-    @Override
-    public void update(Graphics g) {
-        if(image==null){
-            image = createImage(this.getWidth(),this.getHeight());
-            second = image.getGraphics();
-        }
-
-        second.setColor(getBackground());
-        second.fillRect(0,0,getWidth(),getHeight());
-        second.setColor(getForeground());
-        paint(second);
-        g.drawImage(image,0,0,this);
     }
 
     @Override
     public void paint(Graphics g) {
-        g.drawImage(background,bg.getBgX(),bg.getBgY(),this);
-        g.drawImage(background, bg2.getBgX(), bg2.getBgY(),this);
+        g.drawImage(img, 0, 0, this);
+        g.drawImage(enemyStand, 1050, 500, this);
 
-        if(!elza.isJumped() && !elza.isDucked()){
-            g.drawImage(currentAnim.getImage(),elza.getCenterX(),elza.getCenterY(),this);
+        if (!elza.isJumped() && !elza.isDucked()) {
+            g.drawImage(currentAnim.getImage(), elza.getCenterX(), elza.getCenterY(), this);
         }
-        if(elza.isJumped() && elza.isMovingRight()){
-            g.drawImage(heroJumpRight, elza.getCenterX(),elza.getCenterY(),this);
+        if (elza.isJumped() && elza.isMovingRight()) {
+            g.drawImage(heroJumpRight, elza.getCenterX(), elza.getCenterY(), this);
         }
-
-        if(elza.isJumped() && elza.isMovingLeft()){
+        if (elza.isJumped() && elza.isMovingLeft()) {
             g.drawImage(heroJumpLeft, elza.getCenterX(), elza.getCenterY(), this);
         }
-
-        g.drawImage(heliAnim.getImage(), enemy1.getCenterX(), enemy1.getCenterY(), this);
+        if (elza.isJumped() && (elza.getSpeedX() == 0)) {
+            g.drawImage(heroJump, elza.getCenterX(), elza.getCenterY(), this);
+        }
+        if (elza.isDucked()) {
+            g.drawImage(heroDucked, elza.getCenterX(), elza.getCenterY(), this);
+        }
     }
 
     @Override
     public void keyTyped(KeyEvent e) {
-
     }
 
     public void keyPressed(KeyEvent e) {
-
-        switch (e.getKeyCode()){
-
+        switch (e.getKeyCode()) {
             case KeyEvent.VK_RIGHT:
                 elza.moveRight();
                 currentAnim = runningRightAnim;
                 break;
-
             case KeyEvent.VK_LEFT:
                 elza.moveLeft();
                 currentAnim = runningLeftAnim;
                 break;
-
             case KeyEvent.VK_SPACE:
                 elza.jump();
                 break;
-
             case KeyEvent.VK_DOWN:
                 elza.duck();
-
                 break;
-
         }
-
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-
-        switch (e.getKeyCode()){
-
+        switch (e.getKeyCode()) {
             case KeyEvent.VK_RIGHT:
                 elza.stop();
                 elza.setMovingRight(false);
                 currentAnim = standAnimRight;
                 break;
-
             case KeyEvent.VK_LEFT:
                 elza.stop();
                 elza.setMovingLeft(false);
                 currentAnim = standAnimLeft;
                 break;
-
             case KeyEvent.VK_DOWN:
                 elza.setDucked(false);
-
                 break;
         }
+    }
 
+    @Override
+    public void update(Graphics g) {
+        if (image == null) {
+            image = createImage(this.getWidth(), this.getHeight());
+            second = image.getGraphics();
+        }
+        second.setColor(getBackground());
+        second.fillRect(0, 0, getWidth(), getHeight());
+        second.setColor(getForeground());
+        paint(second);
+        g.drawImage(image, 0, 0, this);
     }
 
 
@@ -283,32 +240,11 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
         this.image = image;
     }
 
-
-    public void setBackground(Image background) {
-        this.background = background;
-    }
-
     public Image getHero() {
         return heroStandRight1;
     }
 
     public void setHero(Image hero) {
         this.heroStandRight1 = hero;
-    }
-
-    public static Background getBg() {
-        return bg;
-    }
-
-    public void setBg(Background bg) {
-        this.bg = bg;
-    }
-
-    public Background getBg2() {
-        return bg2;
-    }
-
-    public void setBg2(Background bg2) {
-        this.bg2 = bg2;
     }
 }

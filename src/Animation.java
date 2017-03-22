@@ -7,7 +7,6 @@ public class Animation {
     private long animTime;
     private long totalDuration;
 
-
     Animation(){
         frames = new ArrayList();
         totalDuration = 0;
@@ -59,8 +58,6 @@ public class Animation {
             this.endTime = endTime;
         }
     }
-
-
 
 
     public ArrayList getFrames() {

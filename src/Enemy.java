@@ -2,7 +2,7 @@
 public class Enemy {
 
     int centerX, centerY, speedX;
-    private Background bg = StartingClass.getBg();
+
 
     Enemy(int centerX, int centerY){
         setCenterX(centerX);
@@ -11,8 +11,7 @@ public class Enemy {
 
 
     void update(){
-        centerX+=speedX;
-        speedX = bg.getSpeedX()*2;
+
     }
 
 
@@ -40,11 +39,5 @@ public class Enemy {
         this.speedX = speedX;
     }
 
-    public Background getBg() {
-        return bg;
-    }
 
-    public void setBg(Background bg) {
-        this.bg = bg;
-    }
 }

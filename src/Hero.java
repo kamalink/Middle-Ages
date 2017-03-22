@@ -16,75 +16,68 @@ class Hero {
     private boolean jumped = false;
     private boolean ducked = false;
 
-    private static Background bg = new StartingClass().getBg();
-    private static Background bg2 = new StartingClass().getBg2();
-
-
-    void update(){
+    void update() {
 
         //Handle positive and negative moving
-        if(speedX > 0) {
+        if (speedX > 0) {
             centerX += speedX;
-        } else if(speedX < 0){
+        } else if (speedX < 0) {
             centerX += speedX;
         }
 
 
         //Preventing moving over borders(left, right)
-        if(centerX < 0 && speedX < 0){
+        if (centerX < 0 && speedX < 0) {
             centerX = 0;
-        } else if(centerX > 1210 && speedX > 0){
-            centerX = 1210;
+        } else if (centerX > 1050 && speedX > 0) {
+            centerX = 1050;
         }
 
 
         //Handle jumping
         centerY += speedY;
 
-        if(jumped){
-            speedY+=1;
-            if(centerY >= GROUND){
+        if (jumped) {
+            speedY += 1;
+            if (centerY >= GROUND) {
                 centerY = GROUND;
                 speedY = 0;
                 jumped = false;
             }
         }
-
-
     }
 
-    void jump(){
-        if(!jumped && !ducked){
+    void jump() {
+        if (!jumped && !ducked) {
             speedY = JUMPSPEED;
             jumped = true;
         }
     }
 
-    void duck(){
-        if(!jumped){
+    void duck() {
+        if (!jumped) {
             ducked = true;
             speedX = 0;
         }
     }
 
-    void moveRight(){
-        if(!ducked) {
+    void moveRight() {
+        if (!ducked) {
             speedX = MOVESPEED;
             movingRight = true;
         }
     }
 
-    void moveLeft(){
-        if(!ducked) {
+    void moveLeft() {
+        if (!ducked) {
             speedX = -MOVESPEED;
             movingLeft = true;
         }
     }
 
 
-
-    void stop(){
-        speedX=0;
+    void stop() {
+        speedX = 0;
     }
 
 
@@ -165,19 +158,4 @@ class Hero {
         this.jumped = jumped;
     }
 
-    public static Background getBg() {
-        return bg;
-    }
-
-    public static void setBg(Background bg) {
-        Hero.bg = bg;
-    }
-
-    public static Background getBg2() {
-        return bg2;
-    }
-
-    public static void setBg2(Background bg2) {
-        Hero.bg2 = bg2;
-    }
 }
