@@ -1,4 +1,8 @@
+import java.awt.*;
+
 class Hero {
+
+    int maxHP, currentHP, damage;
 
     private final int GROUND = 528;
     private final int JUMPSPEED = -20;
@@ -16,6 +20,17 @@ class Hero {
     private boolean jumped = false;
     private boolean ducked = false;
 
+    Rectangle rect = new Rectangle(0,0,0,0);
+
+
+    Hero(int maxHP1, int damage1){
+        maxHP1 = maxHP;
+        currentHP = maxHP1;
+        damage1 = damage;
+
+    }
+
+
     void update() {
 
         //Handle positive and negative moving
@@ -25,14 +40,12 @@ class Hero {
             centerX += speedX;
         }
 
-
         //Preventing moving over borders(left, right)
         if (centerX < 0 && speedX < 0) {
             centerX = 0;
         } else if (centerX > 1050 && speedX > 0) {
             centerX = 1050;
         }
-
 
         //Handle jumping
         centerY += speedY;
@@ -45,6 +58,12 @@ class Hero {
                 jumped = false;
             }
         }
+
+        rect.setRect(centerX+110, centerY+25, 20,20);
+    }
+
+    void hit(){
+
     }
 
     void jump() {

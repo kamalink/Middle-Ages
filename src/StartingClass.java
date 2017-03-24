@@ -14,7 +14,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
     private Image img, image;
 
     private Image enemyStand;
-    private Image heroJump, heroJumpRight, heroJumpLeft, heroDucked;
+    private Image currentSprite, heroJump, heroJumpRight, heroJumpLeft, heroDucked, heroHit;
     private Image heroStandRight1, heroStandRight2, heroStandLeft1, heroStandLeft2;
     private Image heroRunningRight1, heroRunningRight2, heroRunningRight3;
     private Image heroRunningLeft1, heroRunningLeft2, heroRunningLeft3;
@@ -61,6 +61,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
         heroJumpLeft = getImage(base, "/ToBeSurvivor/heroJumpLeft.png");
 
         heroDucked = getImage(base, "/ToBeSurvivor/heroDucked.png");
+        heroHit = getImage(base, "/ToBeSurvivor/heroHit.png");
 
         enemyStand = getImage(base,"/ToBeSurvivor/enemyStand.png");
 
@@ -101,7 +102,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
     @Override
     public void start() {
-        elza = new Hero();
+        elza = new Hero(1,1);
         enemy1 = new Enemy(1000, 450);
 
         Thread thread = new Thread(this);
@@ -112,8 +113,13 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
     public void run() {
         while (true) {
             elza.update();
-            currentAnim();
+            enemy1.update();
 
+            if(enemy1.r.intersects(elza.rect)){
+                System.out.println("shot");
+            }
+
+            currentAnim();
             repaint();
 
             try {
@@ -134,6 +140,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
     public void paint(Graphics g) {
         g.drawImage(img, 0, 0, this);
         g.drawImage(enemyStand, 1050, 500, this);
+        g.drawImage(currentSprite, elza.getCenterX(),elza.getCenterY(),this);
 
         if (!elza.isJumped() && !elza.isDucked()) {
             g.drawImage(currentAnim.getImage(), elza.getCenterX(), elza.getCenterY(), this);
@@ -150,6 +157,10 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
         if (elza.isDucked()) {
             g.drawImage(heroDucked, elza.getCenterX(), elza.getCenterY(), this);
         }
+
+        g.setColor(Color.yellow);
+        g.drawRect((int)elza.rect.getCenterX(),(int)elza.rect.getCenterY(),(int)elza.rect.getWidth(),(int)elza.rect.getHeight());
+        g.drawRect((int)enemy1.r.getCenterX(), (int)enemy1.r.getCenterY(), (int)enemy1.r.getWidth(), (int)enemy1.r.getHeight());
     }
 
     @Override
@@ -172,6 +183,8 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
             case KeyEvent.VK_DOWN:
                 elza.duck();
                 break;
+            case KeyEvent.VK_CONTROL:
+                currentSprite = heroHit;
         }
     }
 

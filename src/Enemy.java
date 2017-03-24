@@ -1,7 +1,10 @@
+import java.awt.*;
 
 public class Enemy {
 
-    int centerX, centerY, speedX;
+    int centerX, centerY;
+    int speedX = -1;
+    Rectangle r = new Rectangle(0,0,0,0);
 
 
     Enemy(int centerX, int centerY){
@@ -11,6 +14,8 @@ public class Enemy {
 
 
     void update(){
+        centerX+=speedX;
+        r.setRect(centerX-10, centerY-33, 140,170);
 
     }
 
