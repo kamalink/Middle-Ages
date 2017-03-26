@@ -1,11 +1,16 @@
 import java.awt.*;
 
+import static java.lang.Thread.sleep;
+
 class Hero {
 
-    int maxHP, currentHP, damage;
+    int damage;
+    int currentHP;
+
+    Font hpFont = new Font(null,Font.BOLD, 20);
 
     private final int GROUND = 528;
-    private final int JUMPSPEED = -20;
+    private final int JUMPSPEED = -15;
     private final int MOVESPEED = 5;
 
     private int speedX = 0;
@@ -19,16 +24,10 @@ class Hero {
 
     private boolean jumped = false;
     private boolean ducked = false;
+    private boolean hit = false;
 
     Rectangle rect = new Rectangle(0,0,0,0);
-
-
-    Hero(int maxHP1, int damage1){
-        maxHP1 = maxHP;
-        currentHP = maxHP1;
-        damage1 = damage;
-
-    }
+    Rectangle rectBody = new Rectangle(0,0,0,0);
 
 
     void update() {
@@ -58,37 +57,50 @@ class Hero {
                 jumped = false;
             }
         }
-
-        rect.setRect(centerX+110, centerY+25, 20,20);
+        rect.setRect(centerX+107, centerY+25, 20,20);
+        rectBody.setBounds(centerX-40, centerY-100, 100,150);
     }
 
-    void hit(){
 
+    Hero(int currentHP, int damage){
+        setCurrentHP(currentHP);
+        setDamage(damage);
+
+    }
+
+    void hit() {
+        if(!isDucked() && !isJumped() && !isMovingLeft() && !isMovingRight()){
+            hit = true;
+            if(rect.intersects(Enemy.getLeftSide())){
+                StartingClass.getEnemy1().setCurrentHP(StartingClass.getEnemy1().getCurrentHP() - damage);
+
+            }
+        }
     }
 
     void jump() {
-        if (!jumped && !ducked) {
+        if (!jumped && !ducked && !hit) {
             speedY = JUMPSPEED;
             jumped = true;
         }
     }
 
     void duck() {
-        if (!jumped) {
+        if (!jumped && !hit) {
             ducked = true;
             speedX = 0;
         }
     }
 
     void moveRight() {
-        if (!ducked) {
+        if (!ducked && !hit) {
             speedX = MOVESPEED;
             movingRight = true;
         }
     }
 
     void moveLeft() {
-        if (!ducked) {
+        if (!ducked && !hit) {
             speedX = -MOVESPEED;
             movingLeft = true;
         }
@@ -99,6 +111,46 @@ class Hero {
         speedX = 0;
     }
 
+
+    public int getDamage() {
+        return damage;
+    }
+
+    public void setDamage(int damage) {
+        this.damage = damage;
+    }
+
+    public int getCurrentHP() {
+        return currentHP;
+    }
+
+    public void setCurrentHP(int currentHP) {
+        this.currentHP = currentHP;
+    }
+
+    public Font getHpFont() {
+        return hpFont;
+    }
+
+    public void setHpFont(Font hpFont) {
+        this.hpFont = hpFont;
+    }
+
+    public Rectangle getRect() {
+        return rect;
+    }
+
+    public void setRect(Rectangle rect) {
+        this.rect = rect;
+    }
+
+    public boolean isBeats() {
+        return hit;
+    }
+
+    public void setBeats(boolean beats) {
+        this.hit = beats;
+    }
 
     public boolean isDucked() {
         return ducked;
