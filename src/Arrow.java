@@ -2,52 +2,40 @@ import java.awt.*;
 
 public class Arrow {
     private int centerX, centerY, speedX;
-    Rectangle arrowRect;
+    private Rectangle arrowRect;
+    private int damage = 35;
 
-
-
-    Arrow(int centerX, int centerY, int speedX){
+    Arrow(int centerX, int centerY, int speedX) {
         setCenterX(centerX);
         setCenterY(centerY);
         setSpeedX(speedX);
-        arrowRect = new Rectangle(0,0,0,0);
+        arrowRect = new Rectangle(0, 0, 0, 0);
     }
 
-    void update(){
-        arrowRect.setBounds(StartingClass.getArrowObj().getCenterX(), StartingClass.getArrowObj().getCenterY(), 60,20);
-        centerX+=speedX;
+    void update() {
+        arrowRect.setBounds(centerX - 55, centerY - 10, 100, 16);
+        centerX += speedX;
+        if (arrowRect.intersects(Hero.rectBody)) {
+            if (StartingClass.getArrowObj() != null) {
+                StartingClass.getElza().setCurrentHP(StartingClass.getElza().getCurrentHP() - damage);
+                StartingClass.setArrowObj();
+            }
+        }
     }
 
-    public int getCenterX() {
+    int getCenterX() {
         return centerX;
     }
-
-    public void setCenterX(int centerX) {
+    void setCenterX(int centerX) {
         this.centerX = centerX;
     }
-
-    public Rectangle getArrowRect() {
-        return arrowRect;
-    }
-
-    public void setArrowRect(Rectangle arrowRect) {
-        this.arrowRect = arrowRect;
-    }
-
-
-    public int getCenterY() {
+    int getCenterY() {
         return centerY;
     }
-
-    public void setCenterY(int centerY) {
+    void setCenterY(int centerY) {
         this.centerY = centerY;
     }
-
-    public int getSpeedX() {
-        return speedX;
-    }
-
-    public void setSpeedX(int speedX) {
+    void setSpeedX(int speedX) {
         this.speedX = speedX;
     }
 }

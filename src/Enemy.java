@@ -3,85 +3,63 @@ import java.awt.*;
 public class Enemy {
 
     private int centerX, centerY;
-    private int speedX;
     private int currentHP;
 
-    boolean atack = false;
+    private boolean atack = false;
+    private boolean isDied = false;
 
-    Font hpFont = new Font(null,Font.BOLD, 20);
+    Font hpFont = new Font(null, Font.BOLD, 20);
 
-    Rectangle rightSide = new Rectangle(0,0,0,0);
-    static Rectangle leftSide = new Rectangle(0,0,0,0);
+    private static Rectangle leftSide = new Rectangle(0, 0, 0, 0);
 
-    Enemy(int centerX, int centerY, int currentHP){
+    Enemy(int centerX, int centerY, int currentHP) {
         setCurrentHP(currentHP);
         setCenterX(centerX);
         setCenterY(centerY);
     }
 
-    void update(){
-        rightSide.setRect(centerX+20, centerY-38, 65,100);
-        leftSide.setRect(centerX+8,centerY-40,40,140);
+    void update() {
+        leftSide.setRect(centerX + 8, centerY - 40, 40, 140);
 
+        if (currentHP <= 0) {
+            isDied = true;
+            currentHP = 0;
+        }
     }
 
-
-
-    public boolean isAtack() {
+    boolean isDied() {
+        return isDied;
+    }
+    public void setDied(boolean died) {
+        isDied = died;
+    }
+    boolean isAtack() {
         return atack;
     }
-
-    public void setAtack(boolean atack) {
+    void setAtack(boolean atack) {
         this.atack = atack;
     }
-
-    public int getCurrentHP() {
+    int getCurrentHP() {
         return currentHP;
     }
-
-    public void setCurrentHP(int currentHP) {
+    void setCurrentHP(int currentHP) {
         this.currentHP = currentHP;
     }
-
-    public  Rectangle getRightSide() {
-        return rightSide;
-    }
-
-    public void setRightSide(Rectangle rightSide) {
-        this.rightSide = rightSide;
-    }
-
-    public static Rectangle getLeftSide() {
+    static Rectangle getLeftSide() {
         return leftSide;
     }
-
-    public void setLeftSide(Rectangle leftSide) {
-        this.leftSide = leftSide;
-    }
-
-    public int getCenterX() {
+    int getCenterX() {
         return centerX;
     }
-
-    public void setCenterX(int centerX) {
+    void setCenterX(int centerX) {
         this.centerX = centerX;
     }
-
-    public int getCenterY() {
+    int getCenterY() {
         return centerY;
     }
-
-    public void setCenterY(int centerY) {
+    void setCenterY(int centerY) {
         this.centerY = centerY;
     }
-
-    public int getSpeedX() {
-        return speedX;
-    }
-
-    public void setSpeedX(int speedX) {
-        this.speedX = speedX;
-    }
-
-
 }
+
+

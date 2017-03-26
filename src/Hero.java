@@ -1,13 +1,11 @@
 import java.awt.*;
 
-import static java.lang.Thread.sleep;
-
 class Hero {
 
-    int damage;
+    private int damage;
     int currentHP;
 
-    Font hpFont = new Font(null,Font.BOLD, 20);
+    Font hpFont = new Font(null, Font.BOLD, 20);
 
     private final int GROUND = 528;
     private final int JUMPSPEED = -15;
@@ -18,6 +16,8 @@ class Hero {
 
     private boolean movingLeft = false;
     private boolean movingRight = false;
+    private boolean inflictDamage = false;
+    private boolean isDied = false;
 
     private int centerX = 100;
     private int centerY = GROUND;
@@ -26,11 +26,16 @@ class Hero {
     private boolean ducked = false;
     private boolean hit = false;
 
-    Rectangle rect = new Rectangle(0,0,0,0);
-    Rectangle rectBody = new Rectangle(0,0,0,0);
+    private Rectangle rect = new Rectangle(0, 0, 0, 0);
+    static Rectangle rectBody = new Rectangle(0, 0, 0, 0);
 
 
     void update() {
+        if (currentHP <= 0) {
+            isDied = true;
+            speedX = 0;
+            currentHP = 0;
+        }
 
         //Handle positive and negative moving
         if (speedX > 0) {
@@ -57,23 +62,21 @@ class Hero {
                 jumped = false;
             }
         }
-        rect.setRect(centerX+107, centerY+25, 20,20);
-        rectBody.setBounds(centerX-40, centerY-100, 100,150);
+        rect.setRect(centerX + 107, centerY + 25, 20, 20);
+        rectBody.setBounds(centerX - 40, centerY - 100, 100, 150);
     }
 
-
-    Hero(int currentHP, int damage){
+    Hero(int currentHP, int damage) {
         setCurrentHP(currentHP);
         setDamage(damage);
-
     }
 
     void hit() {
-        if(!isDucked() && !isJumped() && !isMovingLeft() && !isMovingRight()){
+        if (!isDucked() && !isJumped() && !isMovingLeft() && !isMovingRight()) {
             hit = true;
-            if(rect.intersects(Enemy.getLeftSide())){
+            if (rect.intersects(Enemy.getLeftSide()) && !inflictDamage) {
                 StartingClass.getEnemy1().setCurrentHP(StartingClass.getEnemy1().getCurrentHP() - damage);
-
+                inflictDamage = true;
             }
         }
     }
@@ -106,127 +109,62 @@ class Hero {
         }
     }
 
-
     void stop() {
         speedX = 0;
     }
 
-
-    public int getDamage() {
-        return damage;
+    void setInflictDamage() {
+        this.inflictDamage = false;
     }
-
-    public void setDamage(int damage) {
+    boolean isDied() {
+        return isDied;
+    }
+    void setDamage(int damage) {
         this.damage = damage;
     }
-
-    public int getCurrentHP() {
+    int getCurrentHP() {
         return currentHP;
     }
-
-    public void setCurrentHP(int currentHP) {
+    void setCurrentHP(int currentHP) {
         this.currentHP = currentHP;
     }
-
-    public Font getHpFont() {
-        return hpFont;
-    }
-
-    public void setHpFont(Font hpFont) {
-        this.hpFont = hpFont;
-    }
-
-    public Rectangle getRect() {
-        return rect;
-    }
-
-    public void setRect(Rectangle rect) {
-        this.rect = rect;
-    }
-
-    public boolean isBeats() {
+    boolean isBeats() {
         return hit;
     }
-
-    public void setBeats(boolean beats) {
-        this.hit = beats;
+    void setBeats() {
+        this.hit = false;
     }
-
-    public boolean isDucked() {
+    boolean isDucked() {
         return ducked;
     }
-
-    public void setDucked(boolean ducked) {
-        this.ducked = ducked;
+    void setDucked() {
+        this.ducked = false;
     }
-
-    public int getSpeedX() {
+    int getSpeedX() {
         return speedX;
     }
-
-    public void setSpeedX(int speedX) {
-        this.speedX = speedX;
-    }
-
-    public int getCenterX() {
+    int getCenterX() {
         return centerX;
     }
-
-    public void setCenterX(int centerX) {
-        this.centerX = centerX;
-    }
-
-    public int getCenterY() {
+    int getCenterY() {
         return centerY;
     }
-
-    public void setCenterY(int centerY) {
-        this.centerY = centerY;
-    }
-
-
-    public int getGROUND() {
-        return GROUND;
-    }
-
-    public int getMOVESPEED() {
-        return MOVESPEED;
-    }
-
-    public int getJUMPSPEED() {
-        return JUMPSPEED;
-    }
-
-    public int getSpeedY() {
-        return speedY;
-    }
-
-    public void setSpeedY(int speedY) {
-        this.speedY = speedY;
-    }
-
-    public boolean isMovingLeft() {
+    boolean isMovingLeft() {
         return movingLeft;
     }
-
-    public void setMovingLeft(boolean movingLeft) {
-        this.movingLeft = movingLeft;
+    void setMovingLeft() {
+        this.movingLeft = false;
     }
-
-    public boolean isMovingRight() {
+    boolean isMovingRight() {
         return movingRight;
     }
-
-    public void setMovingRight(boolean movingRight) {
-        this.movingRight = movingRight;
+    void setMovingRight() {
+        this.movingRight = false;
     }
-
-    public boolean isJumped() {
+    boolean isJumped() {
         return jumped;
     }
-
-    public void setJumped(boolean jumped) {
-        this.jumped = jumped;
+    void setJumped() {
+        this.jumped = true;
     }
-
 }

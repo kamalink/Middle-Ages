@@ -7,7 +7,7 @@ import static java.lang.Thread.sleep;
 
 public class StartingClass extends Applet implements Runnable, KeyListener {
 
-    private Hero elza;
+    private static Hero elza;
     private static Enemy enemy1;
     private static Arrow arrow;
 
@@ -15,13 +15,15 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
     private Graphics second;
 
     private Image img, image;
-    private static Image Arrow;
+    private static Image arrowImage;
 
-    private Image enemyStand, enemyHit1, enemyHit2, enemyHit3, enemyHit4, enemyHit5, enemyHit6;
+    private Image enemyStand, enemyDied, enemyHit1, enemyHit2, enemyHit3, enemyHit4, enemyHit5, enemyHit6;
     private Image enemyHit7, enemyHit8, enemyHit9, enemyHit10, enemyHit11;
 
-    private Image heroJump, heroJumpRight, heroJumpLeft, heroDucked, heroHit;
-    private Image heroStandRight1, heroStandRight2, heroStandLeft1, heroStandLeft2;
+    private Image heroJump, heroJumpRight, heroJumpLeft, heroDucked, heroHit, heroDied;
+    private Image heroStandRight1, heroStandRight2;
+    private Image heroStandLeft1;
+    private Image heroStandLeft2;
     private Image heroRunningRight1, heroRunningRight2, heroRunningRight3;
     private Image heroRunningLeft1, heroRunningLeft2, heroRunningLeft3;
 
@@ -66,9 +68,11 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
         heroDucked = getImage(base, "/ToBeSurvivor/heroDucked.png");
         heroHit = getImage(base, "/ToBeSurvivor/heroHit.png");
+        heroDied = getImage(base, "/ToBeSurvivor/heroDied.png");
 
         enemyStand = getImage(base, "/ToBeSurvivor/enemyStand.png");
-        Arrow = getImage(base, "/ToBeSurvivor/Arrow.png");
+        enemyDied = getImage(base, "/ToBeSurvivor/enemyDied.png");
+        arrowImage = getImage(base, "/ToBeSurvivor/Arrow.png");
 
         enemyHit1 = getImage(base, "/ToBeSurvivor/enemyHit1.png");
         enemyHit2 = getImage(base, "/ToBeSurvivor/enemyHit2.png");
@@ -129,9 +133,8 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
     @Override
     public void start() {
-        elza = new Hero(200, 1);
+        elza = new Hero(200, 3);
         enemy1 = new Enemy(1050, 535, 500);
-
 
         Thread thread = new Thread(this);
         thread.start();
@@ -143,14 +146,16 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
             elza.update();
             enemy1.update();
 
-            //If hero near to enemy, enemy will shot
-            if(elza.getCenterX()>250){
-                enemy1.setAtack(true);
-            } else {
-                enemy1.setAtack(false);
+            //If hero near to enemy, enemy will shoot
+            if(!enemy1.isDied()) {
+                if (elza.getCenterX() > 250) {
+                    enemy1.setAtack(true);
+                } else {
+                    enemy1.setAtack(false);
+                }
             }
 
-            Animations();
+            currentAnim.update(50);
             repaint();
 
             try {
@@ -161,54 +166,60 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
         }
     }
 
-
-    private void Animations() {
-        currentAnim.update(50);
-
-    }
-
     @Override
     public void paint(Graphics g) {
         //Start configs
         g.drawImage(img, 0, 0, this);
 
-        //1)If frame in animation = 9, then create and draw arrow. 2) If arrow exist, then continue drawing
-        if(enemyHitAnim.getCurrentFrame() == 9){
-            arrow = new Arrow(1000, 575, -9);
-            g.drawImage(Arrow, arrow.getCenterX(), arrow.getCenterY(),this);
-        } else if(arrow != null){
-            g.drawImage(Arrow, arrow.getCenterX(), arrow.getCenterY(),this);
-            arrow.update();
+        if(!enemy1.isDied()) {
+
+            // 1)If frame in animation = 9, then create and draw arrow. 2) If arrow exists, continue drawing
+            if (enemyHitAnim.getCurrentFrame() == 9) {
+                arrow = new Arrow(1000, 575, -9);
+                g.drawImage(arrowImage, arrow.getCenterX(), arrow.getCenterY(), this);
+            } else if (arrow != null) {
+                g.drawImage(arrowImage, arrow.getCenterX(), arrow.getCenterY(), this);
+                arrow.update();
+            }
+
+            //Draw Enemy Animation or Sprite
+            if (enemy1.isAtack()) {
+                g.drawImage(enemyHitAnim.getImage(), enemy1.getCenterX(), enemy1.getCenterY(), this);
+                enemyHitAnim.update(50);
+            } else {
+                g.drawImage(enemyStand, enemy1.getCenterX(), enemy1.getCenterY(), this);
+            }
+        } else if(enemy1.isDied()){
+            g.drawImage(enemyDied, enemy1.getCenterX(),enemy1.getCenterY(),this);
         }
 
-        //Draw Enemy Animation or Sprite
-        if(enemy1.isAtack()){
-            g.drawImage(enemyHitAnim.getImage(), enemy1.getCenterX(),enemy1.getCenterY(),this);
-            enemyHitAnim.update(50);
-        } else{
-            g.drawImage(enemyStand, enemy1.getCenterX(),enemy1.getCenterY(),this);
-        }
 
-        //Draw Hero Animation
-        if (!elza.isJumped() && !elza.isDucked() && !elza.isBeats()) {
-            g.drawImage(currentAnim.getImage(), elza.getCenterX(), elza.getCenterY(), this);
-        }
+        if(!elza.isDied()) {
 
-        //Draw Hero sprites
-        if (elza.isJumped() && elza.isMovingRight()) {
-            g.drawImage(heroJumpRight, elza.getCenterX(), elza.getCenterY(), this);
-        }
-        if (elza.isJumped() && elza.isMovingLeft()) {
-            g.drawImage(heroJumpLeft, elza.getCenterX(), elza.getCenterY(), this);
-        }
-        if (elza.isJumped() && (elza.getSpeedX() == 0)) {
-            g.drawImage(heroJump, elza.getCenterX(), elza.getCenterY(), this);
-        }
-        if (elza.isDucked()) {
-            g.drawImage(heroDucked, elza.getCenterX(), elza.getCenterY(), this);
-        }
-        if(elza.isBeats()) {
-            g.drawImage(heroHit, elza.getCenterX(), elza.getCenterY(), this);
+            //Draw Hero Animation
+            if (!elza.isJumped() && !elza.isDucked() && !elza.isBeats()) {
+                g.drawImage(currentAnim.getImage(), elza.getCenterX(), elza.getCenterY(), this);
+            }
+
+            //Draw Hero sprites
+            if (elza.isJumped() && elza.isMovingRight()) {
+                g.drawImage(heroJumpRight, elza.getCenterX(), elza.getCenterY(), this);
+            }
+            if (elza.isJumped() && elza.isMovingLeft()) {
+                g.drawImage(heroJumpLeft, elza.getCenterX(), elza.getCenterY(), this);
+            }
+            if (elza.isJumped() && (elza.getSpeedX() == 0)) {
+                g.drawImage(heroJump, elza.getCenterX(), elza.getCenterY(), this);
+            }
+            if (elza.isDucked()) {
+                g.drawImage(heroDucked, elza.getCenterX(), elza.getCenterY(), this);
+            }
+            if (elza.isBeats()) {
+                g.drawImage(heroHit, elza.getCenterX(), elza.getCenterY(), this);
+            }
+        } else  if(elza.isDied()){
+            g.drawImage(heroDied,elza.getCenterX(),elza.getCenterY(),this);
+            elza.setJumped();
         }
 
         //Drawing hero HP bar
@@ -220,12 +231,6 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
         g.setFont(enemy1.hpFont);
         g.setColor(Color.red);
         g.drawString(Integer.toString(enemy1.getCurrentHP()), enemy1.getCenterX()+20, enemy1.getCenterY());
-
-        //Draw rectangles
-        g.setColor(Color.yellow);
-        g.drawRect((int)elza.rect.getCenterX(),(int)elza.rect.getCenterY(),(int)elza.rect.getWidth(),(int)elza.rect.getHeight());
-        g.drawRect((int)elza.rectBody.getCenterX(), (int)elza.getCenterY(), (int)elza.rectBody.getWidth(),(int)elza.rectBody.getHeight());
-        g.drawRect((int)enemy1.leftSide.getCenterX(), (int)enemy1.leftSide.getCenterY(), (int)enemy1.leftSide.getWidth(), (int)enemy1.leftSide.getHeight());
     }
 
     @Override
@@ -250,7 +255,6 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
                 break;
             case KeyEvent.VK_CONTROL:
                 elza.hit();
-
                 break;
         }
     }
@@ -260,19 +264,20 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
         switch (e.getKeyCode()) {
             case KeyEvent.VK_RIGHT:
                 elza.stop();
-                elza.setMovingRight(false);
+                elza.setMovingRight();
                 currentAnim = standAnimRight;
                 break;
             case KeyEvent.VK_LEFT:
                 elza.stop();
-                elza.setMovingLeft(false);
+                elza.setMovingLeft();
                 currentAnim = standAnimLeft;
                 break;
             case KeyEvent.VK_DOWN:
-                elza.setDucked(false);
+                elza.setDucked();
                 break;
             case KeyEvent.VK_CONTROL:
-                elza.setBeats(false);
+                elza.setBeats();
+                elza.setInflictDamage();
                 try {
                     sleep(120);
                 } catch (InterruptedException a) {
@@ -295,345 +300,16 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
         g.drawImage(image, 0, 0, this);
     }
 
-    public static void setArrow(Arrow arrow) {
-        StartingClass.arrow = arrow;
-    }
-
-    public static Arrow getArrowObj(){
+    static Arrow getArrowObj(){
         return arrow;
     }
-
-    public void setArrowObj(Arrow arrow) {
-        this.arrow = arrow;
+    static void setArrowObj() {
+        StartingClass.arrow = null;
     }
-
-    public static Image getArrow() {
-        return Arrow;
-    }
-
-    public void setArrow(Image arrow) {
-        Arrow = arrow;
-    }
-
-
-    public static Enemy getEnemy1() {
+    static Enemy getEnemy1() {
         return enemy1;
     }
-
-    public static void setEnemy1(Enemy enemy1) {
-        StartingClass.enemy1 = enemy1;
-    }
-
-    public Image getImg() {
-        return img;
-    }
-
-    public void setImg(Image img) {
-        this.img = img;
-    }
-
-    public Image getEnemyStand() {
-        return enemyStand;
-    }
-
-    public void setEnemyStand(Image enemyStand) {
-        this.enemyStand = enemyStand;
-    }
-
-    public Image getEnemyHit1() {
-        return enemyHit1;
-    }
-
-    public void setEnemyHit1(Image enemyHit1) {
-        this.enemyHit1 = enemyHit1;
-    }
-
-    public Image getEnemyHit2() {
-        return enemyHit2;
-    }
-
-    public void setEnemyHit2(Image enemyHit2) {
-        this.enemyHit2 = enemyHit2;
-    }
-
-    public Image getEnemyHit3() {
-        return enemyHit3;
-    }
-
-    public void setEnemyHit3(Image enemyHit3) {
-        this.enemyHit3 = enemyHit3;
-    }
-
-    public Image getEnemyHit4() {
-        return enemyHit4;
-    }
-
-    public void setEnemyHit4(Image enemyHit4) {
-        this.enemyHit4 = enemyHit4;
-    }
-
-    public Image getEnemyHit5() {
-        return enemyHit5;
-    }
-
-    public void setEnemyHit5(Image enemyHit5) {
-        this.enemyHit5 = enemyHit5;
-    }
-
-    public Image getEnemyHit6() {
-        return enemyHit6;
-    }
-
-    public void setEnemyHit6(Image enemyHit6) {
-        this.enemyHit6 = enemyHit6;
-    }
-
-    public Image getHeroJump() {
-        return heroJump;
-    }
-
-    public void setHeroJump(Image heroJump) {
-        this.heroJump = heroJump;
-    }
-
-    public Image getHeroJumpRight() {
-        return heroJumpRight;
-    }
-
-    public void setHeroJumpRight(Image heroJumpRight) {
-        this.heroJumpRight = heroJumpRight;
-    }
-
-    public Image getHeroJumpLeft() {
-        return heroJumpLeft;
-    }
-
-    public void setHeroJumpLeft(Image heroJumpLeft) {
-        this.heroJumpLeft = heroJumpLeft;
-    }
-
-    public Image getHeroDucked() {
-        return heroDucked;
-    }
-
-    public void setHeroDucked(Image heroDucked) {
-        this.heroDucked = heroDucked;
-    }
-
-    public Image getHeroHit() {
-        return heroHit;
-    }
-
-    public void setHeroHit(Image heroHit) {
-        this.heroHit = heroHit;
-    }
-
-    public Image getHeroStandRight1() {
-        return heroStandRight1;
-    }
-
-    public void setHeroStandRight1(Image heroStandRight1) {
-        this.heroStandRight1 = heroStandRight1;
-    }
-
-    public Image getHeroStandRight2() {
-        return heroStandRight2;
-    }
-
-    public void setHeroStandRight2(Image heroStandRight2) {
-        this.heroStandRight2 = heroStandRight2;
-    }
-
-    public Image getHeroStandLeft1() {
-        return heroStandLeft1;
-    }
-
-    public void setHeroStandLeft1(Image heroStandLeft1) {
-        this.heroStandLeft1 = heroStandLeft1;
-    }
-
-    public Image getHeroStandLeft2() {
-        return heroStandLeft2;
-    }
-
-    public void setHeroStandLeft2(Image heroStandLeft2) {
-        this.heroStandLeft2 = heroStandLeft2;
-    }
-
-    public Image getHeroRunningRight1() {
-        return heroRunningRight1;
-    }
-
-    public void setHeroRunningRight1(Image heroRunningRight1) {
-        this.heroRunningRight1 = heroRunningRight1;
-    }
-
-    public Image getHeroRunningRight2() {
-        return heroRunningRight2;
-    }
-
-    public void setHeroRunningRight2(Image heroRunningRight2) {
-        this.heroRunningRight2 = heroRunningRight2;
-    }
-
-    public Image getHeroRunningRight3() {
-        return heroRunningRight3;
-    }
-
-    public void setHeroRunningRight3(Image heroRunningRight3) {
-        this.heroRunningRight3 = heroRunningRight3;
-    }
-
-    public Image getHeroRunningLeft1() {
-        return heroRunningLeft1;
-    }
-
-    public void setHeroRunningLeft1(Image heroRunningLeft1) {
-        this.heroRunningLeft1 = heroRunningLeft1;
-    }
-
-    public Image getHeroRunningLeft2() {
-        return heroRunningLeft2;
-    }
-
-    public void setHeroRunningLeft2(Image heroRunningLeft2) {
-        this.heroRunningLeft2 = heroRunningLeft2;
-    }
-
-    public Image getHeroRunningLeft3() {
-        return heroRunningLeft3;
-    }
-
-    public void setHeroRunningLeft3(Image heroRunningLeft3) {
-        this.heroRunningLeft3 = heroRunningLeft3;
-    }
-
-    public Animation getRunningRightAnim() {
-        return runningRightAnim;
-    }
-
-    public void setRunningRightAnim(Animation runningRightAnim) {
-        this.runningRightAnim = runningRightAnim;
-    }
-
-    public Animation getRunningLeftAnim() {
-        return runningLeftAnim;
-    }
-
-    public Image getEnemyHit7() {
-        return enemyHit7;
-    }
-
-    public void setEnemyHit7(Image enemyHit7) {
-        this.enemyHit7 = enemyHit7;
-    }
-
-    public Image getEnemyHit8() {
-        return enemyHit8;
-    }
-
-    public void setEnemyHit8(Image enemyHit8) {
-        this.enemyHit8 = enemyHit8;
-    }
-
-    public Image getEnemyHit9() {
-        return enemyHit9;
-    }
-
-    public void setEnemyHit9(Image enemyHit9) {
-        this.enemyHit9 = enemyHit9;
-    }
-
-    public Image getEnemyHit10() {
-        return enemyHit10;
-    }
-
-    public void setEnemyHit10(Image enemyHit10) {
-        this.enemyHit10 = enemyHit10;
-    }
-
-    public Image getEnemyHit11() {
-        return enemyHit11;
-    }
-
-    public void setEnemyHit11(Image enemyHit11) {
-        this.enemyHit11 = enemyHit11;
-    }
-
-    public void setRunningLeftAnim(Animation runningLeftAnim) {
-        this.runningLeftAnim = runningLeftAnim;
-    }
-
-    public Animation getStandAnimRight() {
-        return standAnimRight;
-    }
-
-    public void setStandAnimRight(Animation standAnimRight) {
-        this.standAnimRight = standAnimRight;
-    }
-
-    public Animation getStandAnimLeft() {
-        return standAnimLeft;
-    }
-
-    public void setStandAnimLeft(Animation standAnimLeft) {
-        this.standAnimLeft = standAnimLeft;
-    }
-
-    public Animation getCurrentAnim() {
-        return currentAnim;
-    }
-
-    public void setCurrentAnim(Animation currentAnim) {
-        this.currentAnim = currentAnim;
-    }
-
-    public static Animation getEnemyHitAnim() {
-        return enemyHitAnim;
-    }
-
-    public void setEnemyHitAnim(Animation enemyHitAnim) {
-        this.enemyHitAnim = enemyHitAnim;
-    }
-
-    public Hero getElza() {
+    static Hero getElza() {
         return elza;
     }
-
-    public void setElza(Hero elza) {
-        this.elza = elza;
-    }
-
-    public URL getBase() {
-        return base;
-    }
-
-    public void setBase(URL base) {
-        this.base = base;
-    }
-
-    public Graphics getSecond() {
-        return second;
-    }
-
-    public void setSecond(Graphics second) {
-        this.second = second;
-    }
-
-    public Image getImage() {
-        return image;
-    }
-
-    public void setImage(Image image) {
-        this.image = image;
-    }
-
-    public Image getHero() {
-        return heroStandRight1;
-    }
-
-    public void setHero(Image hero) {
-        this.heroStandRight1 = hero;
-    }
-
 }
