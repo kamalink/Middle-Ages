@@ -3,7 +3,7 @@ import java.awt.*;
 class Hero {
 
     private int damage;
-    int currentHP;
+    private int currentHP;
 
     Font hpFont = new Font(null, Font.BOLD, 20);
 
@@ -27,7 +27,7 @@ class Hero {
     private boolean hit = false;
 
     private Rectangle rect = new Rectangle(0, 0, 0, 0);
-    static Rectangle rectBody = new Rectangle(0, 0, 0, 0);
+    private static Rectangle rectBody = new Rectangle(0, 0, 0, 0);
 
 
     void update() {
@@ -113,6 +113,9 @@ class Hero {
         speedX = 0;
     }
 
+    static Rectangle getRectBody() {
+        return rectBody;
+    }
     void setInflictDamage() {
         this.inflictDamage = false;
     }

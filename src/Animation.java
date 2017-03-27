@@ -1,7 +1,7 @@
 import java.awt.*;
 import java.util.ArrayList;
 
-public class Animation {
+class Animation {
     private ArrayList frames;
     private int currentFrame;
     private long animTime;
@@ -22,9 +22,9 @@ public class Animation {
         frames.add(new AnimFrame(image, totalDuration));
     }
 
-    synchronized void update(long elapsedTime){
+    synchronized void update(){
         if(frames.size()>1) {
-            animTime += elapsedTime;
+            animTime += (long) 50;
 
             if (animTime >= totalDuration) {
                 animTime = animTime % totalDuration;
@@ -48,7 +48,6 @@ public class Animation {
         return (AnimFrame) frames.get(i);
     }
 
-
     private class AnimFrame{
         Image image;
         long endTime;
@@ -58,38 +57,8 @@ public class Animation {
             this.endTime = endTime;
         }
     }
-
-
-    public ArrayList getFrames() {
-        return frames;
-    }
-
-    public void setFrames(ArrayList frames) {
-        this.frames = frames;
-    }
-
-    public int getCurrentFrame() {
+    int getCurrentFrame() {
         return currentFrame;
-    }
-
-    public void setCurrentFrame(int currentFrame) {
-        this.currentFrame = currentFrame;
-    }
-
-    public long getAnimTime() {
-        return animTime;
-    }
-
-    public void setAnimTime(long animTime) {
-        this.animTime = animTime;
-    }
-
-    public long getTotalDuration() {
-        return totalDuration;
-    }
-
-    public void setTotalDuration(long totalDuration) {
-        this.totalDuration = totalDuration;
     }
 }
 

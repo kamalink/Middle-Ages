@@ -1,11 +1,11 @@
 import java.awt.*;
 
-public class Enemy {
+class Enemy {
 
     private int centerX, centerY;
     private int currentHP;
 
-    private boolean atack = false;
+    private boolean attack = false;
     private boolean isDied = false;
 
     Font hpFont = new Font(null, Font.BOLD, 20);
@@ -16,11 +16,13 @@ public class Enemy {
         setCurrentHP(currentHP);
         setCenterX(centerX);
         setCenterY(centerY);
+        leftSide.setRect(centerX + 8, centerY - 40, 40, 140);
     }
 
     void update() {
-        leftSide.setRect(centerX + 8, centerY - 40, 40, 140);
-
+        if(!isDied) {
+            attack = StartingClass.getElza().getCenterX() > 250;
+        }
         if (currentHP <= 0) {
             isDied = true;
             currentHP = 0;
@@ -30,14 +32,8 @@ public class Enemy {
     boolean isDied() {
         return isDied;
     }
-    public void setDied(boolean died) {
-        isDied = died;
-    }
     boolean isAtack() {
-        return atack;
-    }
-    void setAtack(boolean atack) {
-        this.atack = atack;
+        return attack;
     }
     int getCurrentHP() {
         return currentHP;

@@ -145,17 +145,8 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
         while (true) {
             elza.update();
             enemy1.update();
+            currentAnim.update();
 
-            //If hero near to enemy, enemy will shoot
-            if(!enemy1.isDied()) {
-                if (elza.getCenterX() > 250) {
-                    enemy1.setAtack(true);
-                } else {
-                    enemy1.setAtack(false);
-                }
-            }
-
-            currentAnim.update(50);
             repaint();
 
             try {
@@ -173,10 +164,9 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
         if(!enemy1.isDied()) {
 
-            // 1)If frame in animation = 9, then create and draw arrow. 2) If arrow exists, continue drawing
+            // 1)If frame in animation = 9, create arrow. 2) If arrow obj exists, draw arrow
             if (enemyHitAnim.getCurrentFrame() == 9) {
                 arrow = new Arrow(1000, 575, -9);
-                g.drawImage(arrowImage, arrow.getCenterX(), arrow.getCenterY(), this);
             } else if (arrow != null) {
                 g.drawImage(arrowImage, arrow.getCenterX(), arrow.getCenterY(), this);
                 arrow.update();
@@ -185,7 +175,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
             //Draw Enemy Animation or Sprite
             if (enemy1.isAtack()) {
                 g.drawImage(enemyHitAnim.getImage(), enemy1.getCenterX(), enemy1.getCenterY(), this);
-                enemyHitAnim.update(50);
+                enemyHitAnim.update();
             } else {
                 g.drawImage(enemyStand, enemy1.getCenterX(), enemy1.getCenterY(), this);
             }
@@ -217,7 +207,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
             if (elza.isBeats()) {
                 g.drawImage(heroHit, elza.getCenterX(), elza.getCenterY(), this);
             }
-        } else  if(elza.isDied()){
+        } else {
             g.drawImage(heroDied,elza.getCenterX(),elza.getCenterY(),this);
             elza.setJumped();
         }
@@ -225,7 +215,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
         //Drawing hero HP bar
         g.setFont(elza.hpFont);
         g.setColor(Color.RED);
-        g.drawString(Integer.toString(elza.currentHP), elza.getCenterX()+20,elza.getCenterY());
+        g.drawString(Integer.toString(elza.getCurrentHP()), elza.getCenterX()+20,elza.getCenterY());
 
         //Drawing enemy HP bar
         g.setFont(enemy1.hpFont);
