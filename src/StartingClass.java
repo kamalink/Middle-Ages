@@ -7,6 +7,11 @@ import static java.lang.Thread.sleep;
 
 public class StartingClass extends Applet implements Runnable, KeyListener {
 
+    enum GameState{
+        RUNNING, DEAD
+    }
+    static GameState state = GameState.RUNNING;
+
     private static Hero elza;
     private static Enemy enemy1;
     private static Arrow arrow;
@@ -14,13 +19,13 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
     private URL base;
     private Graphics second;
 
-    private Image img, image;
+    private Image background, image;
     private static Image arrowImage;
 
     private Image enemyStand, enemyDied, enemyHit1, enemyHit2, enemyHit3, enemyHit4, enemyHit5, enemyHit6;
     private Image enemyHit7, enemyHit8, enemyHit9, enemyHit10, enemyHit11;
 
-    private Image heroJump, heroJumpRight, heroJumpLeft, heroDucked, heroHit, heroDied;
+    private Image heroJump, heroJumpRight, heroJumpLeft, heroDucked, heroHit;
     private Image heroStandRight1, heroStandRight2;
     private Image heroStandLeft1;
     private Image heroStandLeft2;
@@ -35,8 +40,8 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
         //INIT SETUP
         MediaTracker tr = new MediaTracker(this);
-        img = getImage(getCodeBase(), "/ToBeSurvivor/background.gif");
-        tr.addImage(img, 0);
+        background = getImage(getCodeBase(), "/ToBeSurvivor/background.gif");
+        tr.addImage(background, 0);
         setSize(1200, 768);
         setFocusable(true);
         addKeyListener(this);
@@ -68,7 +73,6 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
         heroDucked = getImage(base, "/ToBeSurvivor/heroDucked.png");
         heroHit = getImage(base, "/ToBeSurvivor/heroHit.png");
-        heroDied = getImage(base, "/ToBeSurvivor/heroDied.png");
 
         enemyStand = getImage(base, "/ToBeSurvivor/enemyStand.png");
         enemyDied = getImage(base, "/ToBeSurvivor/enemyDied.png");
@@ -142,85 +146,101 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
     @Override
     public void run() {
-        while (true) {
-            elza.update();
-            enemy1.update();
-            currentAnim.update();
+        if(state == GameState.RUNNING) {
+            while (true) {
+                elza.update();
+                enemy1.update();
+                currentAnim.update();
 
-            repaint();
+                repaint();
 
-            try {
-                sleep(17);
-            } catch (Exception e) {
-                e.printStackTrace();
+                try {
+                    sleep(17);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
+        }
+    }
+
+    void restart(){
+        if(state == GameState.DEAD){
+           elza = null;
+           enemy1 = null;
+            init();
+            start();
+            run();
+            state = GameState.RUNNING;
+
         }
     }
 
     @Override
     public void paint(Graphics g) {
         //Start configs
-        g.drawImage(img, 0, 0, this);
+        if (state == GameState.RUNNING) {
+            g.drawImage(background, 0, 0, this);
 
-        if(!enemy1.isDied()) {
+            if (!enemy1.isDied()) {
 
-            // 1)If frame in animation = 9, create arrow. 2) If arrow obj exists, draw arrow
-            if (enemyHitAnim.getCurrentFrame() == 9) {
-                arrow = new Arrow(1000, 575, -9);
-            } else if (arrow != null) {
-                g.drawImage(arrowImage, arrow.getCenterX(), arrow.getCenterY(), this);
-                arrow.update();
+                // 1)If frame in animation = 9, create arrow. 2) If arrow obj exists, draw arrow
+                if (enemyHitAnim.getCurrentFrame() == 9) {
+                    arrow = new Arrow(enemy1.getCenterX()-30, enemy1.getCenterY()+40, -11);
+                } else if (arrow != null) {
+                    g.drawImage(arrowImage, arrow.getCenterX(), arrow.getCenterY(), this);
+                    arrow.update();
+                }
+
+                //Draw Enemy Animation or Sprite
+                if (enemy1.isAtack()) {
+                    g.drawImage(enemyHitAnim.getImage(), enemy1.getCenterX(), enemy1.getCenterY(), this);
+                    enemyHitAnim.update();
+                } else {
+                    g.drawImage(enemyStand, enemy1.getCenterX(), enemy1.getCenterY(), this);
+                }
+            } else if (enemy1.isDied()) {
+                g.drawImage(enemyDied, enemy1.getCenterX(), enemy1.getCenterY(), this);
             }
 
-            //Draw Enemy Animation or Sprite
-            if (enemy1.isAtack()) {
-                g.drawImage(enemyHitAnim.getImage(), enemy1.getCenterX(), enemy1.getCenterY(), this);
-                enemyHitAnim.update();
-            } else {
-                g.drawImage(enemyStand, enemy1.getCenterX(), enemy1.getCenterY(), this);
+            {
+                //Draw Hero Animation
+                if (!elza.isJumped() && !elza.isDucked() && !elza.isBeats()) {
+                    g.drawImage(currentAnim.getImage(), elza.getCenterX(), elza.getCenterY(), this);
+                }
+
+                //Draw Hero sprites
+                if (elza.isJumped() && elza.isMovingRight()) {
+                    g.drawImage(heroJumpRight, elza.getCenterX(), elza.getCenterY(), this);
+                }
+                if (elza.isJumped() && elza.isMovingLeft()) {
+                    g.drawImage(heroJumpLeft, elza.getCenterX(), elza.getCenterY(), this);
+                }
+                if (elza.isJumped() && (elza.getSpeedX() == 0)) {
+                    g.drawImage(heroJump, elza.getCenterX(), elza.getCenterY(), this);
+                }
+                if (elza.isDucked()) {
+                    g.drawImage(heroDucked, elza.getCenterX(), elza.getCenterY(), this);
+                }
+                if (elza.isBeats()) {
+                    g.drawImage(heroHit, elza.getCenterX(), elza.getCenterY(), this);
+                }
             }
-        } else if(enemy1.isDied()){
-            g.drawImage(enemyDied, enemy1.getCenterX(),enemy1.getCenterY(),this);
+
+            //Drawing hero HP bar
+            g.setFont(elza.hpFont);
+            g.setColor(Color.RED);
+            g.drawString(Integer.toString(elza.getCurrentHP()), elza.getCenterX() + 20, elza.getCenterY());
+
+            //Drawing enemy HP bar
+            g.setFont(enemy1.hpFont);
+            g.setColor(Color.red);
+            g.drawString(Integer.toString(enemy1.getCurrentHP()), enemy1.getCenterX() + 20, enemy1.getCenterY());
+        } else if (state == GameState.DEAD) {
+            g.setColor(Color.black);
+            g.fillRect(0, 0, 1200, 768);
+            g.setColor(Color.white);
+            g.drawString("Dead", 600, 384);
         }
-
-
-        if(!elza.isDied()) {
-
-            //Draw Hero Animation
-            if (!elza.isJumped() && !elza.isDucked() && !elza.isBeats()) {
-                g.drawImage(currentAnim.getImage(), elza.getCenterX(), elza.getCenterY(), this);
-            }
-
-            //Draw Hero sprites
-            if (elza.isJumped() && elza.isMovingRight()) {
-                g.drawImage(heroJumpRight, elza.getCenterX(), elza.getCenterY(), this);
-            }
-            if (elza.isJumped() && elza.isMovingLeft()) {
-                g.drawImage(heroJumpLeft, elza.getCenterX(), elza.getCenterY(), this);
-            }
-            if (elza.isJumped() && (elza.getSpeedX() == 0)) {
-                g.drawImage(heroJump, elza.getCenterX(), elza.getCenterY(), this);
-            }
-            if (elza.isDucked()) {
-                g.drawImage(heroDucked, elza.getCenterX(), elza.getCenterY(), this);
-            }
-            if (elza.isBeats()) {
-                g.drawImage(heroHit, elza.getCenterX(), elza.getCenterY(), this);
-            }
-        } else {
-            g.drawImage(heroDied,elza.getCenterX(),elza.getCenterY(),this);
-            elza.setJumped();
-        }
-
-        //Drawing hero HP bar
-        g.setFont(elza.hpFont);
-        g.setColor(Color.RED);
-        g.drawString(Integer.toString(elza.getCurrentHP()), elza.getCenterX()+20,elza.getCenterY());
-
-        //Drawing enemy HP bar
-        g.setFont(enemy1.hpFont);
-        g.setColor(Color.red);
-        g.drawString(Integer.toString(enemy1.getCurrentHP()), enemy1.getCenterX()+20, enemy1.getCenterY());
     }
 
     @Override
@@ -246,6 +266,9 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
             case KeyEvent.VK_CONTROL:
                 elza.hit();
                 break;
+            case KeyEvent.VK_TAB:
+                restart();
+                break;
         }
     }
 
@@ -254,25 +277,28 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
         switch (e.getKeyCode()) {
             case KeyEvent.VK_RIGHT:
                 elza.stop();
-                elza.setMovingRight();
+                elza.setMovingRight(false);
                 currentAnim = standAnimRight;
                 break;
             case KeyEvent.VK_LEFT:
                 elza.stop();
-                elza.setMovingLeft();
+                elza.setMovingLeft(false);
                 currentAnim = standAnimLeft;
                 break;
             case KeyEvent.VK_DOWN:
                 elza.setDucked();
                 break;
             case KeyEvent.VK_CONTROL:
-                elza.setBeats();
-                elza.setInflictDamage();
+                elza.setBeats(false);
+                elza.setInflictDamage(false);
                 try {
                     sleep(120);
                 } catch (InterruptedException a) {
                     a.printStackTrace();
                 }
+                break;
+            case KeyEvent.VK_TAB:
+                restart();
                 break;
         }
     }

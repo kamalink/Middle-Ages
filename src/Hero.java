@@ -8,16 +8,15 @@ class Hero {
     Font hpFont = new Font(null, Font.BOLD, 20);
 
     private final int GROUND = 528;
-    private final int JUMPSPEED = -15;
+    private final int JUMPSPEED = -17;
     private final int MOVESPEED = 5;
 
-    private int speedX = 0;
-    private int speedY = 0;
+    private int speedX;
+    private int speedY;
 
     private boolean movingLeft = false;
     private boolean movingRight = false;
     private boolean inflictDamage = false;
-    private boolean isDied = false;
 
     private int centerX = 100;
     private int centerY = GROUND;
@@ -26,13 +25,17 @@ class Hero {
     private boolean ducked = false;
     private boolean hit = false;
 
-    private Rectangle rect = new Rectangle(0, 0, 0, 0);
+    private static Rectangle rect = new Rectangle(0, 0, 0, 0);
     private static Rectangle rectBody = new Rectangle(0, 0, 0, 0);
 
+    Hero(int currentHP, int damage) {
+        setCurrentHP(currentHP);
+        setDamage(damage);
+    }
 
     void update() {
         if (currentHP <= 0) {
-            isDied = true;
+            StartingClass.state = StartingClass.GameState.DEAD;
             speedX = 0;
             currentHP = 0;
         }
@@ -47,34 +50,40 @@ class Hero {
         //Preventing moving over borders(left, right)
         if (centerX < 0 && speedX < 0) {
             centerX = 0;
-        } else if (centerX > 1050 && speedX > 0) {
-            centerX = 1050;
+        } else if (centerX > 600 && speedX > 0) {
+            centerX = 600;
         }
+
 
         //Handle jumping
         centerY += speedY;
 
         if (jumped) {
             speedY += 1;
-            if (centerY >= GROUND) {
+            if (centerY > GROUND) {
                 centerY = GROUND;
                 speedY = 0;
                 jumped = false;
             }
         }
-        rect.setRect(centerX + 107, centerY + 25, 20, 20);
-        rectBody.setBounds(centerX - 40, centerY - 100, 100, 150);
-    }
+        rect.setRect(centerX+120, centerY+40, 20, 20);
+        rectBody.setBounds(centerX+8,centerY-1, 100, 150);
 
-    Hero(int currentHP, int damage) {
-        setCurrentHP(currentHP);
-        setDamage(damage);
+        if(rectBody.intersects(Enemy.getRectBody()) && jumped){
+            centerY = StartingClass.getEnemy1().getCenterY()-145;
+            speedY = 0;
+            jumped = false;
+        } else if(rectBody.intersects(Enemy.getRectBody()) && !jumped && centerY==GROUND){
+            centerX = StartingClass.getEnemy1().getCenterX()-100;
+        } else if(!rectBody.intersects(Enemy.getRectBody()) && centerY<GROUND){
+            jumped = true;
+        }
     }
 
     void hit() {
         if (!isDucked() && !isJumped() && !isMovingLeft() && !isMovingRight()) {
             hit = true;
-            if (rect.intersects(Enemy.getLeftSide()) && !inflictDamage) {
+            if (rect.intersects(Enemy.getRectBody()) && !inflictDamage) {
                 StartingClass.getEnemy1().setCurrentHP(StartingClass.getEnemy1().getCurrentHP() - damage);
                 inflictDamage = true;
             }
@@ -113,14 +122,25 @@ class Hero {
         speedX = 0;
     }
 
+
+
+    public static Rectangle getRect() {
+        return rect;
+    }
+
+    public void setRect(Rectangle rect) {
+        Hero.rect = rect;
+    }
+
+    public void setCenterX(int centerX) {
+        this.centerX = centerX;
+    }
+
     static Rectangle getRectBody() {
         return rectBody;
     }
-    void setInflictDamage() {
-        this.inflictDamage = false;
-    }
-    boolean isDied() {
-        return isDied;
+    void setInflictDamage(boolean inflictDamage) {
+        this.inflictDamage = inflictDamage;
     }
     void setDamage(int damage) {
         this.damage = damage;
@@ -134,8 +154,8 @@ class Hero {
     boolean isBeats() {
         return hit;
     }
-    void setBeats() {
-        this.hit = false;
+    void setBeats(boolean Beats) {
+        this.hit = Beats;
     }
     boolean isDucked() {
         return ducked;
@@ -155,19 +175,19 @@ class Hero {
     boolean isMovingLeft() {
         return movingLeft;
     }
-    void setMovingLeft() {
-        this.movingLeft = false;
+    void setMovingLeft(boolean MovingLeft) {
+        this.movingLeft = MovingLeft;
     }
     boolean isMovingRight() {
         return movingRight;
     }
-    void setMovingRight() {
-        this.movingRight = false;
+    void setMovingRight(boolean MovingRight) {
+        this.movingRight = MovingRight;
     }
     boolean isJumped() {
         return jumped;
     }
-    void setJumped() {
-        this.jumped = true;
+    void setJumped(boolean Jump) {
+        this.jumped = Jump;
     }
 }

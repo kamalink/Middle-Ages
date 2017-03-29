@@ -2,7 +2,7 @@ import java.awt.*;
 
 class Arrow {
     private int centerX, centerY, speedX;
-    private Rectangle arrowRect;
+    private static Rectangle arrowRect;
     private int damage = 35;
 
     Arrow(int centerX, int centerY, int speedX) {
@@ -13,7 +13,7 @@ class Arrow {
     }
 
     void update() {
-        arrowRect.setBounds(centerX - 55, centerY - 10, 100, 16);
+        arrowRect.setBounds(centerX - 16, centerY-1, 100, 16);
         centerX += speedX;
         if (arrowRect.intersects(Hero.getRectBody())) {
             if (StartingClass.getArrowObj() != null) {
@@ -21,6 +21,14 @@ class Arrow {
                 StartingClass.setArrowObj();
             }
         }
+    }
+
+    public static Rectangle getArrowRect() {
+        return arrowRect;
+    }
+
+    public static void setArrowRect(Rectangle arrowRect) {
+        Arrow.arrowRect = arrowRect;
     }
 
     int getCenterX() {

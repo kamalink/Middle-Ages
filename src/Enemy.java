@@ -2,31 +2,43 @@ import java.awt.*;
 
 class Enemy {
 
-    private int centerX, centerY;
-    private int currentHP;
+    private int centerX, centerY, speedX, currentHP;
 
     private boolean attack = false;
     private boolean isDied = false;
 
     Font hpFont = new Font(null, Font.BOLD, 20);
 
-    private static Rectangle leftSide = new Rectangle(0, 0, 0, 0);
+    private static Rectangle rectBody = new Rectangle(0, 0, 0, 0);
 
     Enemy(int centerX, int centerY, int currentHP) {
         setCurrentHP(currentHP);
         setCenterX(centerX);
         setCenterY(centerY);
-        leftSide.setRect(centerX + 8, centerY - 40, 40, 140);
     }
 
     void update() {
-        if(!isDied) {
-            attack = StartingClass.getElza().getCenterX() > 250;
-        }
+        int elzaX = StartingClass.getElza().getCenterX();
+
+        attack = !isDied && elzaX < centerX && elzaX > 250 || !isDied && elzaX < centerX && centerX < 600;
+
         if (currentHP <= 0) {
             isDied = true;
             currentHP = 0;
         }
+        if (StartingClass.getElza().getCenterX() > 599 && StartingClass.getElza().getSpeedX() > 0) {
+            setSpeedX(-3);
+            centerX += speedX;
+        }
+        rectBody.setRect(getCenterX() + 8, getCenterY(), 130, 140);
+    }
+
+    public int getSpeedX() {
+        return speedX;
+    }
+
+    public void setSpeedX(int speedX) {
+        this.speedX = speedX;
     }
 
     boolean isDied() {
@@ -41,8 +53,8 @@ class Enemy {
     void setCurrentHP(int currentHP) {
         this.currentHP = currentHP;
     }
-    static Rectangle getLeftSide() {
-        return leftSide;
+    static Rectangle getRectBody() {
+        return rectBody;
     }
     int getCenterX() {
         return centerX;
