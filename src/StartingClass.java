@@ -10,6 +10,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
     enum GameState{
         RUNNING, DEAD
     }
+
     static GameState state = GameState.RUNNING;
 
     private static Hero elza;
@@ -27,8 +28,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
     private Image heroJump, heroJumpRight, heroJumpLeft, heroDucked, heroHit;
     private Image heroStandRight1, heroStandRight2;
-    private Image heroStandLeft1;
-    private Image heroStandLeft2;
+    private Image heroStandLeft1, heroStandLeft2;
     private Image heroRunningRight1, heroRunningRight2, heroRunningRight3;
     private Image heroRunningLeft1, heroRunningLeft2, heroRunningLeft3;
 

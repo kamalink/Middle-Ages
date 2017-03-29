@@ -1,3 +1,5 @@
+import com.sun.org.apache.regexp.internal.RE;
+
 import java.awt.*;
 
 class Hero {
@@ -14,19 +16,20 @@ class Hero {
     private int speedX;
     private int speedY;
 
-    private boolean movingLeft = false;
-    private boolean movingRight = false;
-    private boolean inflictDamage = false;
+    private boolean movingLeft;
+    private boolean movingRight;
+    private boolean inflictDamage;
 
     private int centerX = 100;
     private int centerY = GROUND;
 
-    private boolean jumped = false;
-    private boolean ducked = false;
-    private boolean hit = false;
+    private boolean jumped;
+    private boolean ducked;
+    private boolean hit;
 
     private static Rectangle rect = new Rectangle(0, 0, 0, 0);
     private static Rectangle rectBody = new Rectangle(0, 0, 0, 0);
+
 
     Hero(int currentHP, int damage) {
         setCurrentHP(currentHP);
@@ -34,13 +37,19 @@ class Hero {
     }
 
     void update() {
+        Rectangle enemyRect = Enemy.getRectBody();
+
+        rect.setRect(centerX+120, centerY+40, 20, 20);
+        rectBody.setBounds(centerX+8,centerY-1, 100, 150);
+
+        //Death. That's all
         if (currentHP <= 0) {
             StartingClass.state = StartingClass.GameState.DEAD;
             speedX = 0;
             currentHP = 0;
         }
 
-        //Handle positive and negative moving
+        //Moving left and right
         if (speedX > 0) {
             centerX += speedX;
         } else if (speedX < 0) {
@@ -48,34 +57,33 @@ class Hero {
         }
 
         //Preventing moving over borders(left, right)
-        if (centerX < 0 && speedX < 0) {
+        if (centerX < 0) {
             centerX = 0;
-        } else if (centerX > 600 && speedX > 0) {
+        } else if (centerX > 600) {
             centerX = 600;
         }
 
 
-        //Handle jumping
+        //Gravity force
         centerY += speedY;
 
+        if (centerY > GROUND) {
+            centerY = GROUND;
+            speedY = 0;
+            jumped = false;
+        }
         if (jumped) {
             speedY += 1;
-            if (centerY > GROUND) {
-                centerY = GROUND;
-                speedY = 0;
-                jumped = false;
-            }
         }
-        rect.setRect(centerX+120, centerY+40, 20, 20);
-        rectBody.setBounds(centerX+8,centerY-1, 100, 150);
 
-        if(rectBody.intersects(Enemy.getRectBody()) && jumped){
+        // 1)Now you can climb on your enemy. 2)You can't go through your enemy. 3)If you already not on your enemy, you will fall
+        if(rectBody.intersects(enemyRect) && jumped){
             centerY = StartingClass.getEnemy1().getCenterY()-145;
             speedY = 0;
             jumped = false;
-        } else if(rectBody.intersects(Enemy.getRectBody()) && !jumped && centerY==GROUND){
+        } else if(rectBody.intersects(enemyRect) && !jumped && centerY==GROUND){
             centerX = StartingClass.getEnemy1().getCenterX()-100;
-        } else if(!rectBody.intersects(Enemy.getRectBody()) && centerY<GROUND){
+        } else if(!rectBody.intersects(enemyRect) && centerY<GROUND){
             jumped = true;
         }
     }
@@ -120,20 +128,6 @@ class Hero {
 
     void stop() {
         speedX = 0;
-    }
-
-
-
-    public static Rectangle getRect() {
-        return rect;
-    }
-
-    public void setRect(Rectangle rect) {
-        Hero.rect = rect;
-    }
-
-    public void setCenterX(int centerX) {
-        this.centerX = centerX;
     }
 
     static Rectangle getRectBody() {
@@ -186,8 +180,5 @@ class Hero {
     }
     boolean isJumped() {
         return jumped;
-    }
-    void setJumped(boolean Jump) {
-        this.jumped = Jump;
     }
 }

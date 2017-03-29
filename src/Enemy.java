@@ -2,10 +2,11 @@ import java.awt.*;
 
 class Enemy {
 
-    private int centerX, centerY, speedX, currentHP;
+    private int centerX, centerY, currentHP;
+    private int speedX = -3;
 
-    private boolean attack = false;
-    private boolean isDied = false;
+    private boolean attack;
+    private boolean isDied;
 
     Font hpFont = new Font(null, Font.BOLD, 20);
 
@@ -18,6 +19,7 @@ class Enemy {
     }
 
     void update() {
+        rectBody.setRect(getCenterX() + 8, getCenterY(), 130, 140);
         int elzaX = StartingClass.getElza().getCenterX();
 
         attack = !isDied && elzaX < centerX && elzaX > 250 || !isDied && elzaX < centerX && centerX < 600;
@@ -26,11 +28,9 @@ class Enemy {
             isDied = true;
             currentHP = 0;
         }
-        if (StartingClass.getElza().getCenterX() > 599 && StartingClass.getElza().getSpeedX() > 0) {
-            setSpeedX(-3);
+        if (elzaX > 599 && StartingClass.getElza().getSpeedX() > 0) {
             centerX += speedX;
         }
-        rectBody.setRect(getCenterX() + 8, getCenterY(), 130, 140);
     }
 
     public int getSpeedX() {
