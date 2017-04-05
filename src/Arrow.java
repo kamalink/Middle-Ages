@@ -16,9 +16,9 @@ class Arrow {
         arrowRect.setBounds(centerX - 16, centerY-1, 100, 16);
         centerX += speedX;
 
-        if (arrowRect.intersects(Hero.getRectBody())) {
-            if (StartingClass.getArrowObj() != null) {
-                StartingClass.getElza().setCurrentHP(StartingClass.getElza().getCurrentHP() - damage);
+        if (arrowRect.intersects(Hero.rectBody)) {
+            if (StartingClass.arrow != null) {
+                StartingClass.elza.setCurrentHP(StartingClass.elza.getCurrentHP() - damage);
                 StartingClass.setArrowObj();
             }
         }

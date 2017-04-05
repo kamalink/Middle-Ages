@@ -1,72 +1,28 @@
 import java.awt.*;
 
-class Enemy {
-
-    private int centerX, centerY, currentHP;
-    private int speedX = -3;
-
-    private boolean attack;
-    private boolean isDied;
+abstract class Enemy {
+    private int centerY, centerX, currentHP;
+    private boolean attack, isDied;
+    int elzaX;
 
     Font hpFont = new Font(null, Font.BOLD, 20);
 
-    private static Rectangle rectBody = new Rectangle(0, 0, 0, 0);
+    abstract void update();
+    abstract void hit();
 
-    Enemy(int centerX, int centerY, int currentHP) {
-        setCurrentHP(currentHP);
-        setCenterX(centerX);
-        setCenterY(centerY);
-    }
-
-    void update() {
-        rectBody.setRect(getCenterX() + 8, getCenterY(), 130, 140);
-        int elzaX = StartingClass.getElza().getCenterX();
-
-        attack = !isDied && elzaX < centerX && elzaX > 250 || !isDied && elzaX < centerX && centerX < 600;
-
-        if (currentHP <= 0) {
-            isDied = true;
-            currentHP = 0;
+    int bgScroll(int centerX){
+        elzaX = StartingClass.getElza().getCenterX();
+        if (elzaX > 499 && StartingClass.getElza().getSpeedX() > 0) {
+            centerX += -2;
         }
-        if (elzaX > 599 && StartingClass.getElza().getSpeedX() > 0) {
-            centerX += speedX;
-        }
-    }
-
-    public int getSpeedX() {
-        return speedX;
-    }
-
-    public void setSpeedX(int speedX) {
-        this.speedX = speedX;
-    }
-
-    boolean isDied() {
-        return isDied;
-    }
-    boolean isAtack() {
-        return attack;
-    }
-    int getCurrentHP() {
-        return currentHP;
-    }
-    void setCurrentHP(int currentHP) {
-        this.currentHP = currentHP;
-    }
-    static Rectangle getRectBody() {
-        return rectBody;
-    }
-    int getCenterX() {
         return centerX;
     }
-    void setCenterX(int centerX) {
-        this.centerX = centerX;
-    }
-    int getCenterY() {
-        return centerY;
-    }
-    void setCenterY(int centerY) {
-        this.centerY = centerY;
+
+    boolean death(int currentHP, boolean isDied) {
+        if (currentHP <= 0) {
+            isDied = true;
+        }
+        return isDied;
     }
 }
 

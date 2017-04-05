@@ -1,13 +1,9 @@
-import com.sun.org.apache.regexp.internal.RE;
-
 import java.awt.*;
 
 class Hero {
 
     private int damage;
     private int currentHP;
-
-    Font hpFont = new Font(null, Font.BOLD, 20);
 
     private final int GROUND = 528;
     private final int JUMPSPEED = -17;
@@ -16,20 +12,25 @@ class Hero {
     private int speedX;
     private int speedY;
 
+    private int centerX = 100;
+    private int centerY = GROUND;
+
     private boolean movingLeft;
     private boolean movingRight;
     private boolean inflictDamage;
-
-    private int centerX = 100;
-    private int centerY = GROUND;
 
     private boolean jumped;
     private boolean ducked;
     private boolean hit;
 
-    private static Rectangle rect = new Rectangle(0, 0, 0, 0);
-    private static Rectangle rectBody = new Rectangle(0, 0, 0, 0);
+    Font hpFont = new Font(null, Font.BOLD, 20);
 
+    static Rectangle rect  = new Rectangle(0, 0, 0, 0);
+    static Rectangle rectBody = new Rectangle(0, 0, 0, 0);
+
+    private Rectangle archerBody;
+    private int archerHP;
+    private int archerX;
 
     Hero(int currentHP, int damage) {
         setCurrentHP(currentHP);
@@ -37,7 +38,9 @@ class Hero {
     }
 
     void update() {
-        Rectangle enemyRect = Enemy.getRectBody();
+        archerBody = Archer.archerBody;
+        archerHP = StartingClass.enemyArcher.getCurrentHP();
+        archerX = StartingClass.enemyArcher.getCenterX();
 
         rect.setRect(centerX+120, centerY+40, 20, 20);
         rectBody.setBounds(centerX+8,centerY-1, 100, 150);
@@ -45,22 +48,18 @@ class Hero {
         //Death. That's all
         if (currentHP <= 0) {
             StartingClass.state = StartingClass.GameState.DEAD;
-            speedX = 0;
-            currentHP = 0;
         }
 
         //Moving left and right
-        if (speedX > 0) {
-            centerX += speedX;
-        } else if (speedX < 0) {
+        if (speedX > 0 || speedX < 0) {
             centerX += speedX;
         }
 
         //Preventing moving over borders(left, right)
         if (centerX < 0) {
             centerX = 0;
-        } else if (centerX > 600) {
-            centerX = 600;
+        } else if (centerX > 500) {
+            centerX = 500;
         }
 
 
@@ -77,22 +76,24 @@ class Hero {
         }
 
         // 1)Now you can climb on your enemy. 2)You can't go through your enemy. 3)If you already not on your enemy, you will fall
-        if(rectBody.intersects(enemyRect) && jumped){
-            centerY = StartingClass.getEnemy1().getCenterY()-145;
+        if(rectBody.intersects(archerBody) && jumped){
+            centerY = StartingClass.enemyArcher.getCenterY() -145;
             speedY = 0;
             jumped = false;
-        } else if(rectBody.intersects(enemyRect) && !jumped && centerY==GROUND){
-            centerX = StartingClass.getEnemy1().getCenterX()-100;
-        } else if(!rectBody.intersects(enemyRect) && centerY<GROUND){
+        } else if(rectBody.intersects(archerBody) && !jumped && centerY==GROUND){
+            centerX = archerX-100;
+        } else if(!rectBody.intersects(archerBody) && centerY<GROUND){
             jumped = true;
         }
     }
 
     void hit() {
-        if (!isDucked() && !isJumped() && !isMovingLeft() && !isMovingRight()) {
+        archerHP = StartingClass.enemyArcher.getCurrentHP();
+
+        if (!ducked && !jumped && !movingLeft && !movingRight) {
             hit = true;
-            if (rect.intersects(Enemy.getRectBody()) && !inflictDamage) {
-                StartingClass.getEnemy1().setCurrentHP(StartingClass.getEnemy1().getCurrentHP() - damage);
+            if (rect.intersects(Archer.archerBody) && !inflictDamage) {
+               StartingClass.enemyArcher.setCurrentHP(archerHP - damage);
                 inflictDamage = true;
             }
         }
@@ -130,7 +131,81 @@ class Hero {
         speedX = 0;
     }
 
-    static Rectangle getRectBody() {
+    public int getDamage() {
+        return damage;
+    }
+
+    public Font getHpFont() {
+        return hpFont;
+    }
+
+    public void setHpFont(Font hpFont) {
+        this.hpFont = hpFont;
+    }
+
+    public int getGROUND() {
+        return GROUND;
+    }
+
+    public int getJUMPSPEED() {
+        return JUMPSPEED;
+    }
+
+    public int getMOVESPEED() {
+        return MOVESPEED;
+    }
+
+    public void setSpeedX(int speedX) {
+        this.speedX = speedX;
+    }
+
+    public int getSpeedY() {
+        return speedY;
+    }
+
+    public void setSpeedY(int speedY) {
+        this.speedY = speedY;
+    }
+
+    public void setCenterX(int centerX) {
+        this.centerX = centerX;
+    }
+
+    public void setCenterY(int centerY) {
+        this.centerY = centerY;
+    }
+
+    public boolean isInflictDamage() {
+        return inflictDamage;
+    }
+
+    public void setJumped(boolean jumped) {
+        this.jumped = jumped;
+    }
+
+    public boolean isHit() {
+        return hit;
+    }
+
+    public void setHit(boolean hit) {
+        this.hit = hit;
+    }
+
+    public static Rectangle getRect() {
+        return rect;
+    }
+
+    public static void setRect(Rectangle rect) {
+        Hero.rect = rect;
+    }
+
+    public void setRectBody(Rectangle rectBody) {
+        this.rectBody = rectBody;
+    }
+
+
+
+    Rectangle getRectBody() {
         return rectBody;
     }
     void setInflictDamage(boolean inflictDamage) {
@@ -154,8 +229,8 @@ class Hero {
     boolean isDucked() {
         return ducked;
     }
-    void setDucked() {
-        this.ducked = false;
+    void setDucked(boolean isDucked) {
+        this.ducked = isDucked;
     }
     int getSpeedX() {
         return speedX;

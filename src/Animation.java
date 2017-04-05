@@ -22,9 +22,9 @@ class Animation {
         frames.add(new AnimFrame(image, totalDuration));
     }
 
-    synchronized void update(){
+    synchronized void update(long elapsedTime){
         if(frames.size()>1) {
-            animTime += (long) 50;
+            animTime += elapsedTime;
 
             if (animTime >= totalDuration) {
                 animTime = animTime % totalDuration;
