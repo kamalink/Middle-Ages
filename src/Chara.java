@@ -1,9 +1,10 @@
-import java.util.Random;
+import java.awt.*;
 
 class Chara extends Enemy {
     private int centerX, centerY, currentHP, speedX;
-    private boolean attack, isDied, movingLeft, movingRight;
-    Random rand = new Random();
+    private boolean attack, isMoving;
+
+    private Rectangle charaBody = new Rectangle();
 
     Chara(int centerX, int centerY, int currentHP){
         setCenterX(centerX);
@@ -13,51 +14,47 @@ class Chara extends Enemy {
 
 
     void update() {
+        charaBody.setRect(centerX+10, centerY, 140,350);
+
         centerX = bgScroll(centerX);
-        isDied = death(currentHP, isDied);
         centerX+=speedX;
         follow();
-    }
 
-    void follow(){
-        if(centerX < -95 || centerX > 1150){
-            speedX = 0;
-            movingLeft = false;
-            movingRight = false;
-        } else if(Math.abs(StartingClass.getElza().getCenterX() - centerX) < 50){
-            speedX = 0;
-            movingLeft = false;
-            movingRight = false;
-        } else{
-            if(StartingClass.getElza().getCenterX() >= centerX){
-                speedX = 1;
-                movingRight = true;
-            } else {
-                speedX = -1;
-                movingLeft = true;
+        if(charaBody.intersects(StartingClass.getElza().getRectBody())){
+            if(!StartingClass.getElza().isDucked()){
+                StartingClass.getElza().setCurrentHP(0);
             }
         }
     }
+
+    void follow(){
+        if(centerX < -95 || centerX > 1000){
+            speedX = 0;
+            isMoving = false;
+        } else {
+                speedX = -1;
+            isMoving = true;
+            }
+        }
 
     @Override
     void hit() {
     }
 
-
-    public boolean isMovingLeft() {
-        return movingLeft;
+    public Rectangle getCharaBody() {
+        return charaBody;
     }
 
-    public void setMovingLeft(boolean movingLeft) {
-        this.movingLeft = movingLeft;
+    public void setCharaBody(Rectangle charaBody) {
+        this.charaBody = charaBody;
     }
 
-    public boolean isMovingRight() {
-        return movingRight;
+    public boolean isMoving() {
+        return isMoving;
     }
 
-    public void setMovingRight(boolean movingRight) {
-        this.movingRight = movingRight;
+    public void setMoving(boolean movingLeft) {
+        this.isMoving = movingLeft;
     }
 
     public int getCenterX() {
@@ -90,13 +87,5 @@ class Chara extends Enemy {
 
     public void setAttack(boolean attack) {
         this.attack = attack;
-    }
-
-    public boolean isDied() {
-        return isDied;
-    }
-
-    public void setDied(boolean died) {
-        isDied = died;
     }
 }

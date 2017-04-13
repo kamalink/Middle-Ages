@@ -1,8 +1,6 @@
 import java.awt.*;
 
 abstract class Enemy {
-    private int centerY, centerX, currentHP;
-    private boolean attack, isDied;
     int elzaX;
 
     Font hpFont = new Font(null, Font.BOLD, 20);

@@ -3,7 +3,7 @@ import java.awt.*;
 class Archer extends Enemy {
 
     private int centerX, centerY, currentHP;
-    private boolean attack, isDied;
+    private boolean attack, died;
 
     static Rectangle archerBody = new Rectangle(0, 0, 0, 0);
 
@@ -15,16 +15,18 @@ class Archer extends Enemy {
 
     @Override
     void update() {
-        archerBody.setRect(getCenterX() + 8, getCenterY(), 130, 140);
+        if(archerBody != null) {
+            archerBody.setRect(getCenterX() + 8, getCenterY(), 130, 140);
+        }
         hit();
         centerX = bgScroll(centerX);
-        isDied = death(currentHP, isDied);
+        died = death(currentHP, died);
     }
 
     @Override
     void hit() {
         elzaX = StartingClass.getElza().getCenterX();
-        attack = !isDied && elzaX < centerX && elzaX > 250 || !isDied && elzaX < centerX && centerX < 600;
+        attack = !died && elzaX < centerX && elzaX > 250 || !died && elzaX < centerX && centerX < 600;
     }
 
 
@@ -33,7 +35,7 @@ class Archer extends Enemy {
         return archerBody;
     }
 
-    public void setRectBody(Rectangle rectBody) {
+    public static void setRectBody(Rectangle rectBody) {
         Archer.archerBody = rectBody;
     }
 
@@ -70,10 +72,10 @@ class Archer extends Enemy {
     }
 
     public boolean isDied() {
-        return isDied;
+        return died;
     }
 
     public void setDied(boolean died) {
-        isDied = died;
+        this.died = died;
     }
 }

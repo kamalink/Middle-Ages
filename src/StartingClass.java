@@ -3,8 +3,6 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.net.URL;
-import java.time.Duration;
-import java.time.Instant;
 
 import static java.lang.Thread.sleep;
 
@@ -13,6 +11,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
     enum GameState {
         RUNNING, DEAD
     }
+    static StartingClass obj = new StartingClass();
 
 
 
@@ -44,7 +43,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
     private Animation runningRightAnim, runningLeftAnim, standAnimRight, standAnimLeft, currentAnim;
     private static Animation archerHitAnim;
-    private Animation charaStandAnim, charaMoveLeftAnim, charaMoveRightAnim, charaCurrentAnim;
+    private Animation charaStandAnim, charaMoving, charaCurrentAnim;
 
     @Override
     public void init() {
@@ -139,14 +138,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
             runningRightAnim.addFrame(heroRunningRight2, 300);
             runningRightAnim.addFrame(heroRunningRight3, 300);
         }
-        //PRESET FOR INIT ANIMATION
-        {
-            currentAnim = new Animation();
-            currentAnim = standAnimRight;
 
-            charaCurrentAnim = new Animation();
-            charaCurrentAnim = charaStandAnim;
-        }
         //ARCHER ANIMATIONS
         {
             archerHitAnim = new Animation();
@@ -165,20 +157,28 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
         //CHARA ANIMATIONS
         {
             charaStandAnim = new Animation();
-            charaStandAnim.addFrame(charaStand1, 9000);
+            charaStandAnim.addFrame(charaStand1, 8000);
             charaStandAnim.addFrame(charaStand2, 550);
         }
         {
-            charaMoveLeftAnim = new Animation();
-            charaMoveLeftAnim.addFrame(charaMovingLeft1, 400);
-            charaMoveLeftAnim.addFrame(charaMovingLeft2, 400);
-            charaMoveLeftAnim.addFrame(charaMovingLeft3, 400);
-            charaMoveLeftAnim.addFrame(charaMovingLeft4, 400);
-            charaMoveLeftAnim.addFrame(charaMovingLeft5, 400);
-            charaMoveLeftAnim.addFrame(charaMovingLeft6, 400);
-            charaMoveLeftAnim.addFrame(charaMovingLeft7, 400);
-            charaMoveLeftAnim.addFrame(charaMovingLeft8, 400);
-            charaMoveLeftAnim.addFrame(charaMovingLeft9, 400);
+            charaMoving = new Animation();
+            charaMoving.addFrame(charaMovingLeft1, 400);
+            charaMoving.addFrame(charaMovingLeft2, 400);
+            charaMoving.addFrame(charaMovingLeft3, 400);
+            charaMoving.addFrame(charaMovingLeft4, 400);
+            charaMoving.addFrame(charaMovingLeft5, 400);
+            charaMoving.addFrame(charaMovingLeft6, 400);
+            charaMoving.addFrame(charaMovingLeft7, 400);
+            charaMoving.addFrame(charaMovingLeft8, 400);
+            charaMoving.addFrame(charaMovingLeft9, 400);
+        }
+        //PRESET FOR INIT ANIMATION
+        {
+            currentAnim = new Animation();
+            currentAnim = standAnimRight;
+
+            charaCurrentAnim = new Animation();
+            charaCurrentAnim = charaStandAnim;
         }
     }
 
@@ -186,7 +186,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
     public void start() {
         elza = new Hero(200, 3);
         enemyArcher = new Archer(1050,535,500);
-        enemyChara = new Chara(1600,405, 2000);
+        enemyChara = new Chara(2400,405, 2000);
 
 
         Thread thread = new Thread(this);
@@ -216,9 +216,8 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
     }
 
     void animations(){
-
         currentAnim.update(50);
-
+        charaCurrentAnim.update(50);
     }
 
     void restart() {
@@ -248,6 +247,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
                         arrow = new Arrow(enemyArcher.getCenterX() - 30, enemyArcher.getCenterY() + 40, -11);
                     } else if (arrow != null) {
                         g.drawImage(arrowImage, arrow.getCenterX(), arrow.getCenterY(), this);
+                        g.setColor(Color.red);
                         arrow.update();
                     }
 
@@ -265,29 +265,21 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
                     g.drawString(Integer.toString(enemyArcher.getCurrentHP()), enemyArcher.getCenterX() + 20, enemyArcher.getCenterY());
 
                 } else if (enemyArcher.isDied()) {
-                    g.drawImage(archerDied, enemyArcher.getCenterX(), enemyArcher.getCenterY(), this);
+                    Archer.setRectBody(null);
                 }
             }
             //CHARA
             {
-                if(!enemyChara.isDied()){
-                    if(enemyChara.isMovingLeft()){
-                        g.drawImage(charaMoveLeftAnim.getImage(), enemyChara.getCenterX(), enemyChara.getCenterY(), this);
-                        charaCurrentAnim = charaMoveLeftAnim;
-                        charaCurrentAnim.update(50);
-                    } else if(enemyChara.isMovingRight()){
-                        charaCurrentAnim = charaMoveRightAnim;
-                    } else {
-                        g.drawImage(charaStandAnim.getImage(), enemyChara.getCenterX(), enemyChara.getCenterY(), this);
-                    }
-
-                    g.setFont(enemyChara.hpFont);
-                    g.setColor(Color.red);
-                    g.drawString(Integer.toString(enemyChara.getCurrentHP()), enemyChara.getCenterX(), enemyChara.getCenterY());
-
-                } else if(enemyChara.isDied()){
-
+                if (enemyChara.isMoving()) {
+                    g.drawImage(charaMoving.getImage(), enemyChara.getCenterX(), enemyChara.getCenterY(), this);
+                    charaCurrentAnim = charaMoving;
+                } else{
+                    g.drawImage(charaStandAnim.getImage(), enemyChara.getCenterX(), enemyChara.getCenterY(), this);
                 }
+                g.setFont(enemyChara.hpFont);
+                g.setColor(Color.red);
+                g.drawString(Integer.toString(enemyChara.getCurrentHP()), enemyChara.getCenterX(), enemyChara.getCenterY());
+
             }
             //HERO
             {
@@ -312,6 +304,14 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
                 if (elza.isBeats()) {
                     g.drawImage(heroHit, elza.getCenterX(), elza.getCenterY(), this);
                 }
+            }
+
+            //Condition for win
+            if(enemyArcher.isDied() && enemyChara.getCenterX() < -40){
+                g.setColor(Color.black);
+                g.fillRect(0, 0, 1200, 768);
+                g.setColor(Color.white);
+                g.drawString("You win!", 600, 384);
             }
 
             //Drawing hero HP bar
@@ -376,6 +376,11 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
             case KeyEvent.VK_CONTROL:
                 elza.setBeats(false);
                 elza.setInflictDamage(false);
+                try {
+                    sleep(120);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
                 break;
             case KeyEvent.VK_TAB:
                 restart();
@@ -395,6 +400,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
         paint(second);
         g.drawImage(image, 0, 0, this);
     }
+
 
     public static GameState getState() {
         return state;
@@ -770,7 +776,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
         StartingClass.arrow = null;
     }
 
-    static Enemy getEnemyArcher() {
+    Enemy getEnemyArcher() {
         return enemyArcher;
     }
 

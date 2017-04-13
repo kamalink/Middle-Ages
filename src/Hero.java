@@ -42,8 +42,8 @@ class Hero {
         archerHP = StartingClass.enemyArcher.getCurrentHP();
         archerX = StartingClass.enemyArcher.getCenterX();
 
-        rect.setRect(centerX+120, centerY+40, 20, 20);
-        rectBody.setBounds(centerX+8,centerY-1, 100, 150);
+        rectBody.setRect(centerX + 8, centerY - 1, 100, 150);
+        rect.setRect(centerX + 120, centerY + 40, 20, 20);
 
         //Death. That's all
         if (currentHP <= 0) {
@@ -76,14 +76,16 @@ class Hero {
         }
 
         // 1)Now you can climb on your enemy. 2)You can't go through your enemy. 3)If you already not on your enemy, you will fall
-        if(rectBody.intersects(archerBody) && jumped){
-            centerY = StartingClass.enemyArcher.getCenterY() -145;
-            speedY = 0;
-            jumped = false;
-        } else if(rectBody.intersects(archerBody) && !jumped && centerY==GROUND){
-            centerX = archerX-100;
-        } else if(!rectBody.intersects(archerBody) && centerY<GROUND){
-            jumped = true;
+        if (archerBody != null) {
+            if (rectBody.intersects(archerBody) && jumped) {
+                centerY = StartingClass.enemyArcher.getCenterY() - 145;
+                speedY = 0;
+                jumped = false;
+            } else if (rectBody.intersects(archerBody) && !jumped && centerY == GROUND) {
+                centerX = archerX - 100;
+            } else if (!rectBody.intersects(archerBody) && centerY < GROUND) {
+                jumped = true;
+            }
         }
     }
 
@@ -92,12 +94,16 @@ class Hero {
 
         if (!ducked && !jumped && !movingLeft && !movingRight) {
             hit = true;
-            if (rect.intersects(Archer.archerBody) && !inflictDamage) {
-               StartingClass.enemyArcher.setCurrentHP(archerHP - damage);
-                inflictDamage = true;
+            if (archerBody != null) {
+                if (rect.intersects(Archer.archerBody) && !inflictDamage) {
+                    StartingClass.enemyArcher.setCurrentHP(archerHP - damage);
+                    inflictDamage = true;
+                }
             }
         }
     }
+
+
 
     void jump() {
         if (!jumped && !ducked && !hit) {
@@ -205,7 +211,7 @@ class Hero {
 
 
 
-    Rectangle getRectBody() {
+    public Rectangle getRectBody() {
         return rectBody;
     }
     void setInflictDamage(boolean inflictDamage) {

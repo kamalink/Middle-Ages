@@ -13,7 +13,7 @@ class Arrow {
     }
 
     void update() {
-        arrowRect.setBounds(centerX - 16, centerY-1, 100, 16);
+        arrowRect.setBounds(centerX - 10, centerY-1, 20, 16);
         centerX += speedX;
 
         if (arrowRect.intersects(Hero.rectBody)) {
